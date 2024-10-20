@@ -1,0 +1,275 @@
+---
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import maplibregl from "maplibre-gl";
+import type {
+  FillLayerSpecification,
+  CircleLayerSpecification,
+  LineLayerSpecification,
+  SymbolLayerSpecification,
+} from "maplibre-gl";
+import fs from "fs";
+import yaml from "js-yaml";
+
+// Load and parse the YAML file
+const fileContents = fs.readFileSync(
+  "src/pages/scrollytelling_steps.yaml",
+  "utf8"
+);
+interface MapStep {
+  title: string;
+  description: string;
+  center: [number, number];
+  zoom: number;
+  pitch?: number;
+  bearing?: number;
+  media?: string;
+  position?: "left" | "right" | "centered" | "full";
+  layers?: GeoJSONFeatureLayer[];
+  persist?: boolean;
+}
+
+const mapData: MapStep[] = yaml.load(fileContents) as MapStep[];
+
+export interface Props {
+  latitude: number;
+  longitude: number;
+  zoom: number;
+  mapstyle: string;
+  container: string;
+
+  /** If `false`, the map will not respond to interaction.  This is a static map built with the full web map rendering API. */
+  interactive?: boolean;
+  containerstyle?: string;
+  pitch?: number;
+  bearing?: number;
+  layers?: GeoJSONFeatureLayer[];
+}
+
+export interface GeoJSONFeatureLayer {
+  dataType: "geojson";
+  id: string;
+  url: string;
+  layerType:
+    | "symbol"
+    | "fill"
+    | "custom"
+    | "raster"
+    | "line"
+    | "circle"
+    | "heatmap"
+    | "fill-extrusion"
+    | "hillshade"
+    | "background";
+  paint?:
+    | FillLayerSpecification
+    | LineLayerSpecification
+    | CircleLayerSpecification
+    | SymbolLayerSpecification;
+}
+
+const {
+  latitude,
+  longitude,
+  zoom,
+  mapstyle,
+  container,
+  interactive,
+  containerstyle = "height: 61.8vh",
+  pitch,
+  bearing,
+  layers,
+} = Astro.props;
+const layersJson = layers ? JSON.stringify(layers) : undefined;
+---
+
+<div class="scrollytelling-container">
+  <!-- Map Container -->
+  <div
+    id={container}
+    class="maplibre-inline map-container"
+    style={{ width: "100vw", height: "100vh" }}
+  >
+    <maplibre-map
+      data-latitude={latitude}
+      data-longitude={longitude}
+      data-zoom={zoom}
+      data-mapstyle={mapstyle}
+      data-container={container}
+      data-interactive={interactive}
+      data-containerstyle={containerstyle}
+      data-pitch={pitch}
+      data-bearing={bearing}
+      data-layers={layersJson}
+    >
+      <link
+        rel="stylesheet"
+        href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css"
+      />
+      <script>
+        import maplibregl from "maplibre-gl";
+        import type { GeoJSONFeatureLayer } from "./MapLibre.astro";
+
+        class MapLibreScrollytellingMap extends HTMLElement {
+          constructor() {
+            super();
+            var map = new maplibregl.Map({
+              container: this.dataset.container || "maplibre-map",
+              interactive: this.dataset.interactive
+                ? JSON.parse(this.dataset.interactive)
+                : false,
+              center: [
+                this.dataset.longitude ? parseFloat(this.dataset.longitude) : 0,
+                this.dataset.latitude ? parseFloat(this.dataset.latitude) : 0,
+              ],
+              zoom: this.dataset.zoom
+                ? parseFloat(this.dataset.zoom)
+                : undefined,
+              style: this.dataset.mapstyle,
+            });
+
+            map.on("load", () => {
+              const sections = document.querySelectorAll("section");
+
+              const observer = new IntersectionObserver(
+                (entries) => {
+                  entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                      entry.target.classList.add("active");
+
+                      const centerAttr =
+                        entry.target.getAttribute("data-center");
+                      const center = centerAttr
+                        ? JSON.parse(centerAttr)
+                        : undefined;
+                      const zoom = entry.target.getAttribute("data-zoom");
+                      const pitch = entry.target.getAttribute("data-pitch");
+                      const bearing = entry.target.getAttribute("data-bearing");
+
+                      // parse layers
+                      const layersAttr =
+                        entry.target.getAttribute("data-layers");
+                      const layers = layersAttr
+                        ? JSON.parse(layersAttr)
+                        : undefined;
+                      if (layers) {
+                        layers.forEach((layer: GeoJSONFeatureLayer) => {
+                          
+
+                          if (layer["data-type"] === "geojson") {
+                            fetch(layer.url)
+                              .then((response) => response.json())
+                              .then((data) => {
+                                data.features.forEach(
+                                  (feature: {
+                                    geometry: {
+                                      type: string;
+                                      coordinates: number[];
+                                    };
+                                    properties: {
+                                      longitude: number;
+                                      latitude: number;
+                                    };
+                                  }) => {
+                                    // check if there's already a valid geometry, otherwise reconstruct it
+                                    if (!feature.geometry) {
+                                      feature.geometry = {
+                                        type: "Point",
+                                        coordinates: [
+                                          Number(feature.properties.longitude),
+                                          Number(feature.properties.latitude),
+                                        ],
+                                      };
+                                    }
+                                  }
+                                );
+                                // if source already exists, continue, else add it
+                                if (!map.getSource(layer.id)) {
+                                  map.addSource(layer.id, {
+                                    type: "geojson",
+                                    data: data,
+                                  });
+                                }
+
+                                // if layer doesn't already exist, add it
+                                if (!map.getLayer(layer.id)) {
+                                  map.addLayer({
+                                    id: layer.id,
+                                    type: layer["layer-type"],
+                                    source: layer.id,
+                                    paint: layer.paint,
+                                  });
+                                }
+                              });
+                          }
+                        });
+                      }
+
+                      // Update the MapLibre map
+                      map.flyTo({
+                        center: center as maplibregl.LngLatLike,
+                        zoom: zoom ? parseFloat(zoom) : undefined,
+                        pitch: pitch ? parseFloat(pitch) : undefined,
+                        bearing: bearing ? parseFloat(bearing) : undefined,
+                        essential: true,
+                      });
+                    } else {
+                      if (!entry.target.getAttribute("data-persist")) {
+                        // Remove the active class from the section
+                        entry.target.classList.remove("active");
+
+                        // Remove the layers from the map
+                        const layersAttr =
+                          entry.target.getAttribute("data-layers");
+                        const layers = layersAttr
+                          ? JSON.parse(layersAttr)
+                          : undefined;
+                        if (layers) {
+                          layers.forEach((layer: GeoJSONFeatureLayer) => {
+                            if (map.getLayer(layer.id)) {
+                              map.removeLayer(layer.id);
+                            }
+                            if (map.getSource(layer.id)) {
+                              map.removeSource(layer.id);
+                            }
+                          });
+                        }
+                      }
+                    }
+                  });
+                },
+                { threshold: 0.5 }
+              );
+
+              sections.forEach((section) => observer.observe(section));
+            });
+          }
+        }
+
+        window.customElements.define("maplibre-map", MapLibreScrollytellingMap);
+      </script>
+    </maplibre-map>
+  </div>
+
+  <!-- Scrolling Content -->
+  <main>
+    {
+      mapData.map((step, index) => (
+        <section
+          id={`section-${index}`}
+          data-center={JSON.stringify(step.center)}
+          data-zoom={step.zoom}
+          data-pitch={step.pitch}
+          data-bearing={step.bearing}
+          data-layers={JSON.stringify(step.layers)}
+          class:list={[step.position ? step.position : "lefty", "step"]}
+        >
+          <div class="step-content">
+            <h2>{step.title}</h2>
+            <p>{step.description}</p>
+            {step.media ? <img src={step.media} alt={step.title} /> : null}
+          </div>
+        </section>
+      ))
+    }
+  </main>
+</div>

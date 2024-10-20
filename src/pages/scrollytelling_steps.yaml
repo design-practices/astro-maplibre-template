@@ -1,0 +1,44 @@
+- title: Introduction
+  center: [-74.0060, 40.7128]
+  zoom: 10
+  pitch: 45
+  bearing: 0
+  description: Welcome to the map scrollytelling app. You can set position, zoom, pitch, and bearing via the top-level props.
+
+- title: New York
+  center: [-74.0062, 40.7125]
+  zoom: 14
+  pitch: 50
+  bearing: 20
+  description: Now we zoom in. Layers are added to the map to show pizza and burger restaurants via GeoJSON endpoint. Layer paint properties are passed, and layers are set to turn off when you continue scrolling via the `persist:false` attribute.
+  layers:
+  - id: 'pizza'
+    url: 'https://data.cityofnewyork.us/resource/43nn-pn8j.geojson?cuisine_description=Pizza&$limit=10000'
+    type: 'circle'
+    data-type: 'geojson'
+    layer-type: 'circle'
+    persist: false
+    paint:
+      circle-radius: 5
+      circle-color: '#ff0000'
+      circle-opacity: 0.8
+
+  - id: 'burgers'
+    url: 'https://data.cityofnewyork.us/resource/43nn-pn8j.geojson?cuisine_description=American&$limit=10000'
+    type: 'circle'
+    data-type: 'geojson'
+    layer-type: 'circle'
+    persist: false
+    paint:
+      circle-radius: 6
+      circle-color: '#00ff00'
+      circle-opacity: 0.8
+
+- title: London
+  center: [-0.1278, 51.5074]
+  zoom: 8
+  pitch: 30
+  bearing: -10
+  description: You can change the position of the overlay div using the position attribute, and can add images using the media attribute.
+  media: https://img.atlasobscura.com/OGZXBPY6hP2AXBi-M97MjAYHr46wOlG4iPA1pz2owEI/rt:fit/h:390/q:81/sm:1/scp:1/ar:1/aHR0cHM6Ly9hdGxh/cy1kZXYuczMuYW1h/em9uYXdzLmNvbS91/cGxvYWRzL3BsYWNl/X2ltYWdlcy85NTI3/NzEyMWY1NWM5ZWIx/ZDRfMTM3ODE0MjA1/OTNfMjQ0ZmUxZDJj/OV9rLmpwZw.jpg
+  position: right
