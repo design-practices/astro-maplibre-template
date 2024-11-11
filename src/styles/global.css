@@ -1,3 +1,11 @@
+/* Add the @font-face rule to load Baskerville BT */
+@font-face {
+    font-family: 'Baskerville Old Face';
+    src: url('/astro-maplibre-template/fonts/BASKVILL.TTF') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -31,6 +39,7 @@ body {
 }
 
 body {
+  font-family: 'Baskerville Old Face', serif;
   @apply font-sans antialiased;
   @apply flex flex-col;
   @apply bg-stone-100 dark:bg-stone-900;
@@ -94,7 +103,7 @@ h5 {
 	margin-top: 1.5em;
 	margin-bottom: 1.5em;
 	line-height: initial;
-	font-family: "Inter", normal;
+	font-family: "Baskerville Old Face", serif;
 }
 
 h1 {
@@ -255,4 +264,8 @@ section {
 
 #menu a.active:hover {
   background: rgb(236, 55, 19);
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: 'Baskerville Old Face', serif !important;
 }

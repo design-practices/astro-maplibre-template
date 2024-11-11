@@ -6,12 +6,16 @@ import { SITE } from "@consts";
 
 <header>
   <Container>
-    <div class="flex flex-wrap gap-y-2 justify-between">
+    <div class="flex flex-col gap-y-2">
       <Link href="/astro-maplibre-template" underline={false}>
         <div class="font-semibold">
           {SITE.NAME}
         </div>
       </Link>      
+      <div class="font-light">
+        <p>Contact: {SITE.EMAIL}</p>
+        <p>{SITE.DESCRIPTION}</p>
+      </div>
     </div>
   </Container>
 </header>

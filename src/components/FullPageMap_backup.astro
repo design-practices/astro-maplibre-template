@@ -68,8 +68,6 @@ const layers: GeoJSONFeatureLayer[] = yaml.load(
   fileContents
 ) as GeoJSONFeatureLayer[];
 
-console.log("Layers array:", layers);
-
 const {
   latitude,
   longitude,
@@ -108,7 +106,6 @@ const {
         href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css"
       />
       <script>
-        console.log("Script started")
         import maplibregl from "maplibre-gl";
         import type { GeoJSONFeatureLayer } from "./FullPageMap.astro";
 
@@ -169,16 +166,10 @@ const {
                 });
 
                 layers.forEach((layer: GeoJSONFeatureLayer) => {
-                  console.log('Processing layer: ${layer.id}');
-
                   if (layer["data-type"] === "geojson") {
                     fetch(layer.url)
-                      .then((response) => {
-                        console.log(`Fetched URL: ${layer.url}`);  // Log the URL being fetched
-                        return response.json();
-                      })
+                      .then((response) => response.json())
                       .then((data) => {
-                        console.log('Received GeoJSON data for layer ${layer.id}');  // Log the parsed data
                         data.features.forEach(
                           (feature: {
                             geometry: {
@@ -205,7 +196,6 @@ const {
 
                         // Add source if it doesn't exist
                         if (!map.getSource(layer.id)) {
-                          console.log(`Adding source for layer: ${layer.id}`);  // Log source addition
                           map.addSource(layer.id, {
                             type: "geojson",
                             data: data,
@@ -214,17 +204,13 @@ const {
 
                         // Add layer if it doesn't already exist
                         if (!map.getLayer(layer.id)) {
-                          console.log(`Layer paint properties for ${layer.id}:`, layer.paint);  // Log layer addition
                           map.addLayer({
                             id: layer.id,
                             type: layer["layer-type"],
                             // @ts-expect-error expect source to be string via source above
                             source: layer.id,
                             // @ts-expect-error expect partial paint defs
-                            paint: {
-                              "circle-color": layer.paint?.["circle-color"] || "#beb297",
-                              "circle-radius": layer.paint?.["circle-radius"] || 1,
-                            },
+                            paint: layer.paint || {}, // Include paint if it exists
                             layout: {
                               visibility: layer.visible ? "visible" : "none",
                             },

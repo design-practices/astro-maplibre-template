@@ -1,9 +1,9 @@
 import type { Site, Metadata, Socials } from "@types";
 
 export const SITE: Site = {
-  NAME: "Project Website",
-  EMAIL: "<your email address here>",
-  DESCRIPTION: "<A description of your website>",
+  NAME: "James E. Churchill NOLA cemeteries",
+  EMAIL: "james.churchill@columbia.edu",
+  DESCRIPTION: "This website looks at density in the graveyards of New Orleans with a dot density map",
 };
 
 export const HOME: Metadata = {
