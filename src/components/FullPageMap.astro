@@ -109,7 +109,7 @@ const {
       />
       <script>
         console.log("Script started")
-        import maplibregl from "maplibre-gl";
+        import maplibregl, { type FillLayerSpecification, type LineLayerSpecification } from "maplibre-gl";
         import type { GeoJSONFeatureLayer } from "./FullPageMap.astro";
 
         class MapLibreFullPageMap extends HTMLElement {
@@ -216,9 +216,9 @@ const {
                         if (!map.getLayer(layer.id)) {
                           console.log(`Layer paint properties for ${layer.id}:`, layer.paint);  // Log layer addition
 
-                          const layerConfig: maplibregl.LayerSpecification = {
+                          const layerConfig: any = {
                             id: layer.id,
-                            type: layer["layer-type"],
+                            type: layer["layer-type"] as "symbol" | "fill" | "raster" | "line" | "circle" "heatmap" | "fill-extrusion" | "hillshade" | "background",  // Remove unsupported type "custom"
                             source: layer.id as string, // Use source as a string
                             layout: {
                               visibility: layer.visible ? "visible" : "none",
@@ -228,15 +228,13 @@ const {
 
                           // Conditional paint properties based on layer type
                           if (layer["layer-type"] === "circle" && layer.paint) {
-                            // Assert the type of layer.paint to CircleLayerSpecification if layer type is "circle"
-                            const circlePaint = layer.paint as CircleLayerSpecification;
                             layerConfig.paint = {
-                              "circle-color": circlePaint["circle-color"] || "#beb297",
-                              "circle-radius": circlePaint["circle-radius"] || 1,
+                              "circle-color": layer.paint["circle-color"] || "#beb297",
+                              "circle-radius": layer.paint["circle-radius"] || 1,
                             };
                           } else if (layer.paint) {
                             // For other layer types, add paint properties as needed (optional, example only)
-                            layerConfig.paint = layer.paint;
+                            layerConfig.paint = layer.paint as FillLayerSpecification | LineLayerSpecification | SymbolLayerSpecification; // Assign specific types
                           }
 
                           // Add the configured layer to the map
