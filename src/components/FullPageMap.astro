@@ -68,8 +68,6 @@ const layers: GeoJSONFeatureLayer[] = yaml.load(
   fileContents
 ) as GeoJSONFeatureLayer[];
 
-console.log("Layers array:", layers);
-
 const {
   latitude,
   longitude,
@@ -108,8 +106,7 @@ const {
         href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css"
       />
       <script>
-        console.log("Script started")
-        import maplibregl, { type FillLayerSpecification, type LineLayerSpecification } from "maplibre-gl";
+        import maplibregl from "maplibre-gl";
         import type { GeoJSONFeatureLayer } from "./FullPageMap.astro";
 
         class MapLibreFullPageMap extends HTMLElement {
@@ -169,16 +166,10 @@ const {
                 });
 
                 layers.forEach((layer: GeoJSONFeatureLayer) => {
-                  console.log('Processing layer: ${layer.id}');
-
                   if (layer["data-type"] === "geojson") {
                     fetch(layer.url)
-                      .then((response) => {
-                        console.log(`Fetched URL: ${layer.url}`);  // Log the URL being fetched
-                        return response.json();
-                      })
+                      .then((response) => response.json())
                       .then((data) => {
-                        console.log('Received GeoJSON data for layer ${layer.id}');  // Log the parsed data
                         data.features.forEach(
                           (feature: {
                             geometry: {
@@ -205,7 +196,6 @@ const {
 
                         // Add source if it doesn't exist
                         if (!map.getSource(layer.id)) {
-                          console.log(`Adding source for layer: ${layer.id}`);  // Log source addition
                           map.addSource(layer.id, {
                             type: "geojson",
                             data: data,
@@ -214,32 +204,19 @@ const {
 
                         // Add layer if it doesn't already exist
                         if (!map.getLayer(layer.id)) {
-                          console.log(`Layer paint properties for ${layer.id}:`, layer.paint);  // Log layer addition
-
-                          const layerConfig: any = {
+                          map.addLayer({
                             id: layer.id,
-                            type: layer["layer-type"] as "symbol" | "fill" | "raster" | "line" | "circle" "heatmap" | "fill-extrusion" | "hillshade" | "background",  // Remove unsupported type "custom"
-                            source: layer.id as string, // Use source as a string
+                            type: layer["layer-type"],
+                            // @ts-expect-error expect source to be string via source above
+                            source: layer.id,
+                            // @ts-expect-error expect partial paint defs
+                            paint: layer.paint || {}, // Include paint if it exists
                             layout: {
                               visibility: layer.visible ? "visible" : "none",
                             },
-                            paint: {},
-                          };
-
-                          // Conditional paint properties based on layer type
-                          if (layer["layer-type"] === "circle" && layer.paint) {
-                            layerConfig.paint = {
-                              "circle-color": layer.paint["circle-color"] || "#beb297",
-                              "circle-radius": layer.paint["circle-radius"] || 1,
-                            };
-                          } else if (layer.paint) {
-                            // For other layer types, add paint properties as needed (optional, example only)
-                            layerConfig.paint = layer.paint as FillLayerSpecification | LineLayerSpecification | SymbolLayerSpecification; // Assign specific types
-                          }
-
-                          // Add the configured layer to the map
-                          map.addLayer(layerConfig);
+                          });
                         }
+                      });
 
                     // Handle mouse events if defined
                     if (layer.mouseEvent) {
