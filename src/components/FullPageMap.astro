@@ -215,22 +215,33 @@ const {
                         // Add layer if it doesn't already exist
                         if (!map.getLayer(layer.id)) {
                           console.log(`Layer paint properties for ${layer.id}:`, layer.paint);  // Log layer addition
-                          map.addLayer({
+
+                          const layerConfig: maplibregl.LayerSpecification = {
                             id: layer.id,
                             type: layer["layer-type"],
-                            // @ts-expect-error expect source to be string via source above
-                            source: layer.id,
-                            // @ts-expect-error expect partial paint defs
-                            paint: {
-                              "circle-color": layer.paint?.["circle-color"] || "#beb297",
-                              "circle-radius": layer.paint?.["circle-radius"] || 1,
-                            },
+                            source: layer.id as string, // Use source as a string
                             layout: {
                               visibility: layer.visible ? "visible" : "none",
                             },
-                          });
+                            paint: {},
+                          };
+
+                          // Conditional paint properties based on layer type
+                          if (layer["layer-type"] === "circle" && layer.paint) {
+                            // Assert the type of layer.paint to CircleLayerSpecification if layer type is "circle"
+                            const circlePaint = layer.paint as CircleLayerSpecification;
+                            layerConfig.paint = {
+                              "circle-color": circlePaint["circle-color"] || "#beb297",
+                              "circle-radius": circlePaint["circle-radius"] || 1,
+                            };
+                          } else if (layer.paint) {
+                            // For other layer types, add paint properties as needed (optional, example only)
+                            layerConfig.paint = layer.paint;
+                          }
+
+                          // Add the configured layer to the map
+                          map.addLayer(layerConfig);
                         }
-                      });
 
                     // Handle mouse events if defined
                     if (layer.mouseEvent) {
