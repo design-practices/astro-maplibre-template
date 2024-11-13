@@ -1,25 +1,17 @@
-/* Add the @font-face rule to load Baskerville BT */
-@font-face {
-    font-family: 'Baskerville Old Face';
-    src: url('/astro-maplibre-template/fonts/BASKVILL.TTF') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-}
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* Base styles */
 :root {
-  --bg-color: rgba(255, 255, 255, 0.9); /* Light mode */
-  --text-color: #333; /* Darker text for light mode */
+  --bg-color: rgba(255, 255, 255, 1); /* Light mode */
+  --text-color: #4a0a61; /* Darker text for light mode */
 }
 
 /* Dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-color: rgba(40, 40, 40, 0.9); /* Dark background */
+    --bg-color: rgba(40, 40, 40, 1); /* Dark background */
     --text-color: #eee; /* Lighter text for dark mode */
   }
 }
@@ -47,16 +39,20 @@ body {
 }
 
 header {
+  font-family: 'Baskerville Old Face', serif;
+  font-weight: bold;
   @apply fixed top-0 left-0 right-0 z-50 py-5;
   @apply bg-stone-100/75 dark:bg-stone-900/25;
   @apply backdrop-blur-sm saturate-200;
 }
 
 main {
+  font-family: 'Baskerville Old Face', serif;
   @apply flex-1 py-32;
 }
 
 footer {
+  font-family: 'Baskerville Old Face', serif;
   @apply py-5 text-sm;
 }
 
@@ -203,7 +199,7 @@ section {
 .step {
   padding-bottom: 50vh;
   /* margin-bottom: 10vh; */
-  opacity: 0.25;
+  opacity: 0.5;
 }
 .step.active {
   opacity: 0.9;
@@ -212,7 +208,7 @@ section {
 .step div {
   padding:  25px 50px;
   line-height: 25px;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .step-content { 
@@ -264,8 +260,4 @@ section {
 
 #menu a.active:hover {
   background: rgb(236, 55, 19);
-}
-
-h1, h2, h3, h4, h5 {
-  font-family: 'Baskerville Old Face', serif !important;
 }

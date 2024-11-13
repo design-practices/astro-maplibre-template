@@ -3,15 +3,15 @@ import PageLayout from "@layouts/PageLayout.astro";
 import { SITE } from "@consts";
 import { default as STM } from "@components/Scrollytelling.astro";
 
-<PageLayout title={'Scrollytelling Demo'} description={SITE.description}>
+<PageLayout title={'NOLA Scrollytelling'} description={SITE.description}>
    
     <STM
         container="maplibre-scrollytelling-map"
-        latitude={40.8075803}
-        longitude={-73.9604192}
+        latitude={29.95687}
+        longitude={-90.06992}
         zoom={12}
         interactive="false"
-        mapstyle="https://api.maptiler.com/maps/dataviz/style.json?key=WlatIY6MghFCwInJhBkl"
+        mapstyle="./dark_matter_JEC.json"
         containerstyle="width: 100%; height: 50vh"
     />
 

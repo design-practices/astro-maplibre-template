@@ -1,23 +1,23 @@
 - title: Introduction
-  center: [-90.06992, 29.95687]
-  zoom: 13
+  center: [-74.0060, 40.7128]
+  zoom: 10
   pitch: 0
   bearing: 0
-  description: Welcome to New Orleans, the city surrounded by and immersed in water, where physical, and cultural boundaries are constantly shifting. Here, the living and the dead have laid side by side above ground for centuries, rising and sinking with bacterial, viral, and oceanic tides.
+  description: Welcome to the map scrollytelling app. You can set position, zoom, pitch, and bearing via the top-level props.
 
-- title: Density in NOLA cemeteries
-  center: [-90.11992, 29.98318]
-  zoom: 15
+- title: Section Title - Squirrels in Central Park
+  center: [-73.96778, 40.78376]
+  zoom: 14
   pitch: 0
-  bearing: 320
-  description: Using a dot density map, we can start to parse the data on perished New Orleanians around the city. This can then be cross-checked against the age of each site and may yield clues on the social demographics of extant places of burial. 
+  bearing: 20
+  description: Now we zoom in. A layer is added from a geojson  Layer paint properties are passed, and layers are set to turn off when you continue scrolling via the `persist:false` attribute.
   
   layers:
   # id of layer
-  - id: 'Grave_Density_by_200'
+  - id: 'squirrel-census'
   # path to dataset 
   # note anything uploaded in the public/data folder will be uploaded to your site at url/data/file.png
-    url: './Grave_Density_by_200.geojson'
+    url: './data/squirrel20241021.geojson'
   # type of symbol
     type: 'circle'
   # type of symbol
@@ -25,8 +25,8 @@
     layer-type: 'circle'
     persist: true
     paint:
-      circle-radius: 4
-      circle-color: '#b2ab6d'
+      circle-radius: 5
+      circle-color: '#826260'
       circle-opacity: 0.8
 
 - title: Polygon Layer

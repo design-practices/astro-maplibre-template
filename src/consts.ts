@@ -1,9 +1,9 @@
 import type { Site, Metadata, Socials } from "@types";
 
 export const SITE: Site = {
-  NAME: "James E. Churchill NOLA cemeteries",
+  NAME: "James E. Churchill NOLA beyond the pale",
   EMAIL: "james.churchill@columbia.edu",
-  DESCRIPTION: "This website looks at density in the graveyards of New Orleans with a dot density map",
+  DESCRIPTION: "",
 };
 
 export const HOME: Metadata = {
