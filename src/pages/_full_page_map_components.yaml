@@ -1,32 +1,61 @@
-- id: 'bikes'
-  label: 'Bike Lanes'
+# - id: 'pizza'
+#   label: 'Pizza Places'
+#   toggle: true
+#   visible: true
+#   data-type: 'geojson'
+#   layer-type: 'circle'
+#   url: 'https://data.cityofnewyork.us/resource/43nn-pn8j.geojson?cuisine_description=Pizza&$limit=10000'
+#   paint:
+#     circle-color: '#ff0000'
+#     circle-radius: 5
+#   mouseEvent:
+#     - type: "click"
+#       content:
+#         - h1:
+#             - str: "Feature Info"
+#         - p:
+#             - str: "Description"
+#         - p:
+#             - str: "Name: "
+#             - property: "dba"
+#               else: "N/A"
+
+- id: 'census_tract'
+  label: 'Census Tracts'
   toggle: true  
   visible: false
   data-type: 'geojson'
-  layer-type: 'line'
-  url: 'https://data.cityofnewyork.us/resource/mzxg-pwib.geojson?$limit=10000'
+  layer-type: 'fill'
+  url: 'data\whole.geojson'
   paint:
-    line-color: '#000000'
-    line-width: 3
+    fill-color: '#e3e3e3'
+    fill-opacity: 0.7
+    fill-outline-color: '#4b4b4b'
 
-- id: 'pizza'
-  label: 'Pizza Places'
-  toggle: true
+- id: 'county_line'
+  label: 'Counties Outline'
+  toggle: true  
   visible: true
   data-type: 'geojson'
-  layer-type: 'circle'
-  url: 'https://data.cityofnewyork.us/resource/43nn-pn8j.geojson?cuisine_description=Pizza&$limit=10000'
+  layer-type: 'line'
+  url: 'data\counties.geojson'
+  after: 'census_tract'
   paint:
-    circle-color: '#ff0000'
-    circle-radius: 5
-  mouseEvent:
-    - type: "click"
-      content:
-        - h1:
-            - str: "Feature Info"
-        - p:
-            - str: "Description"
-        - p:
-            - str: "Name: "
-            - property: "dba"
-              else: "N/A"
+    line-color: '#848484'
+    line-opacity: 0.9 
+    line-width: 0.8
+    line-dasharray: [4, 2]
+
+- id: 'state_line'
+  label: 'States Outline'
+  toggle: true  
+  visible: true
+  data-type: 'geojson'
+  layer-type: 'line'
+  url: 'data\states_life_line.geojson'
+  after: 'census_tract'
+  paint:
+    line-color: '#000000'
+    line-opacity: 0.9 
+    line-width: 1
+    line-dasharray: [4, 2]
