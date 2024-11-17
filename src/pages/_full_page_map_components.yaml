@@ -30,3 +30,14 @@
             - str: "Name: "
             - property: "dba"
               else: "N/A"
+
+- id: 'squirrels'
+  label: 'Squirrel Census 2015'
+  toggle: true  
+  visible: false
+  data-type: 'geojson'
+  layer-type: 'circle'
+  url: './data/squirrel20241021.geojson'
+  paint:
+    circle-color: '#000000'
+    circle-radius: 3
