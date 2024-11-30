@@ -1,14 +1,9 @@
 ---
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import maplibregl from "maplibre-gl";
-import type {
-  GeoJSONFeatureLayer,
-  RasterLayer,
-  ImageLayer,
-  VectorTileLayer,
-} from "@types";
+import type { MapLayer } from "@types";
 export interface LayerGroup {
-  layers: (GeoJSONFeatureLayer | RasterLayer | ImageLayer | VectorTileLayer)[];
+  layers: MapLayer[];
 }
 
 export interface Props {
@@ -62,12 +57,14 @@ const layersJson = JSON.stringify(layers);
   data-bearing={bearing}
   data-layers={layersJson}
 >
-
   <div id={container} style={containerstyle} class="maplibre-inline">
     {
-      layersJson && JSON.parse(layersJson).some((layer: { toggle: boolean; }) => layer.toggle === true) ? 
-      <nav id="menu"></nav> : 
-      null
+      layersJson &&
+      JSON.parse(layersJson).some(
+        (layer: { toggle: boolean }) => layer.toggle === true
+      ) ? (
+        <nav id="menu" />
+      ) : null
     }
   </div>
 
@@ -81,12 +78,7 @@ const layersJson = JSON.stringify(layers);
 
   <script>
     import maplibregl from "maplibre-gl";
-    import type {
-      GeoJSONFeatureLayer,
-      RasterLayer,
-      ImageLayer,
-      VectorTileLayer,
-    } from "@types";
+    import type { MapLayer } from "@types";
 
     class MapLibreMap extends HTMLElement {
       constructor() {
@@ -109,225 +101,213 @@ const layersJson = JSON.stringify(layers);
           if (this.dataset.layers) {
             const layers = JSON.parse(this.dataset.layers);
 
-            layers.forEach(
-              (
-                layer:
-                  | GeoJSONFeatureLayer
-                  | RasterLayer
-                  | ImageLayer
-                  | VectorTileLayer
-              ) => {
-                if (layer.toggle) {
-                  const toggleButton = document.createElement("a");
-                  const menu = document.getElementById("menu");
-                  toggleButton.textContent = layer.label ?? layer.id;
-                  
-                  if (layer.visible === true) {
-                    toggleButton.className = "active";
-                  } 
-                  toggleButton.onclick = () => {
-                    if (
-                      map.getLayoutProperty(layer.id, "visibility") ===
-                      "visible"
-                    ) {
-                      map.setLayoutProperty(layer.id, "visibility", "none");
-                      toggleButton.className = "";
-                    } else {
-                      map.setLayoutProperty(layer.id, "visibility", "visible");
-                      toggleButton.className = "active";
-                    }
-                  };
-                  if (menu) {
-                    menu.appendChild(toggleButton);
-                  }
+            layers.forEach((layer: MapLayer) => {
+              if (layer.toggle) {
+                const toggleButton = document.createElement("a");
+                const menu = document.getElementById("menu");
+                toggleButton.textContent = layer.label ?? layer.id;
+
+                if (layer.visible === true) {
+                  toggleButton.className = "active";
                 }
-                if (layer["data-type"] === "geojson") {
-                  fetch(layer.url)
-                    .then((res) => res.json())
-                    .then((data) => {
-                      // Modify the data to fit the expected format
-                      data.features.forEach(
-                        (feature: {
-                          geometry: { type: string; coordinates: number[] };
-                          properties: { longitude: number; latitude: number };
-                        }) => {
-                          // check if there's already a valid geometry, otherwise reconstruct it
-                          if (!feature.geometry) {
-                            feature.geometry = {
-                              type: "Point",
-                              coordinates: [
-                                Number(feature.properties.longitude),
-                                Number(feature.properties.latitude),
-                              ],
-                            };
-                          }
+                toggleButton.onclick = () => {
+                  if (
+                    map.getLayoutProperty(layer.id, "visibility") === "visible"
+                  ) {
+                    map.setLayoutProperty(layer.id, "visibility", "none");
+                    toggleButton.className = "";
+                  } else {
+                    map.setLayoutProperty(layer.id, "visibility", "visible");
+                    toggleButton.className = "active";
+                  }
+                };
+                if (menu) {
+                  menu.appendChild(toggleButton);
+                }
+              }
+              if (layer["data-type"] === "geojson") {
+                fetch(layer.url)
+                  .then((res) => res.json())
+                  .then((data) => {
+                    // Modify the data to fit the expected format
+                    data.features.forEach(
+                      (feature: {
+                        geometry: { type: string; coordinates: number[] };
+                        properties: { longitude: number; latitude: number };
+                      }) => {
+                        // check if there's already a valid geometry, otherwise reconstruct it
+                        if (!feature.geometry) {
+                          feature.geometry = {
+                            type: "Point",
+                            coordinates: [
+                              Number(feature.properties.longitude),
+                              Number(feature.properties.latitude),
+                            ],
+                          };
                         }
-                      );
-                      // Add the source and layer to the map
-                      map.addSource(layer.id, {
-                        type: layer["data-type"],
-                        data: data, // Use the resolved data here
-                      });
-
-                      map.addLayer({
-                        id: layer.id,
-                        type: layer["layer-type"],
-                        // @ts-expect-error expect source to be string via source above
-                        source: layer.id,
-                        // @ts-expect-error expect partial paint defs
-                        paint: layer.paint || {}, // Include paint if it exists
-                        layout: {
-                          visibility: layer.visible ? "visible" : "none",
-                        },
-                      });
-                    });
-                } else if (layer["data-type"] === "raster") {
-                  // Add source if it doesn't exist
-                  if (!map.getSource(layer.id)) {
+                      }
+                    );
+                    // Add the source and layer to the map
                     map.addSource(layer.id, {
-                      type: "raster",
-                      tiles: [layer.url || ""],
-                      tileSize: layer.tileSize || 256,
+                      type: layer["data-type"],
+                      data: data, // Use the resolved data here
                     });
-                  }
 
-                  // Add layer if it doesn't already exist
-                  if (!map.getLayer(layer.id)) {
-                    map.addLayer({
-                      id: layer.id,
-                      type: "raster",
-                      source: layer.id,
-                      // @ts-expect-error expect partial paint defs
-                      paint: layer.paint || {}, // Include paint if it exists
-                      layout: {
-                        visibility: layer.visible ? "visible" : "none",
-                      },
-                    });
-                  }
-                } else if (layer["data-type"] === "image") {
-                  // Add source if it doesn't exist
-                  if (!map.getSource(layer.id)) {
-                    map.addSource(layer.id, {
-                      type: "image",
-                      url: layer.url || "",
-                      coordinates: layer.coordinates || [],
-                    });
-                  }
-
-                  // Add layer if it doesn't already exist
-                  if (!map.getLayer(layer.id)) {
-                    map.addLayer({
-                      id: layer.id,
-                      type: "raster",
-                      source: layer.id,
-                      // @ts-expect-error expect partial paint defs
-                      paint: layer.paint || {}, // Include paint if it exists
-                      layout: {
-                        visibility: layer.visible ? "visible" : "none",
-                      },
-                    });
-                  }
-                } else if (layer["data-type"] === "vector") {
-                  // Add source if it doesn't exist
-                  if (!map.getSource(layer.id)) {
-                    map.addSource(layer.id, {
-                      type: "vector",
-                      tiles: [layer.url || ""],
-                      minzoom: layer.minzoom || 0,
-                      maxzoom: layer.maxzoom || 22,
-                    });
-                  }
-
-                  // Add layer if it doesn't already exist
-                  if (!map.getLayer(layer.id)) {
                     map.addLayer({
                       id: layer.id,
                       type: layer["layer-type"],
+                      // @ts-expect-error expect source to be string via source above
                       source: layer.id,
-                      "source-layer": layer["source-layer"] ?? layer.id,
                       // @ts-expect-error expect partial paint defs
                       paint: layer.paint || {}, // Include paint if it exists
                       layout: {
                         visibility: layer.visible ? "visible" : "none",
                       },
                     });
-                  }
+                  });
+              } else if (layer["data-type"] === "raster") {
+                // Add source if it doesn't exist
+                if (!map.getSource(layer.id)) {
+                  map.addSource(layer.id, {
+                    type: "raster",
+                    tiles: [layer.url || ""],
+                    tileSize: layer.tileSize || 256,
+                  });
                 }
-                if (layer.mouseEvent) {
-                  const popup = new maplibregl.Popup({ offset: 15 });
 
-                  layer.mouseEvent.forEach((event) => {
-                    map.on(event.type, layer.id, (e) => {
-                      const popupContent = event.content
-                        .map((tag) => {
-                          const tagName = Object.keys(tag)[0];
-                          console.log(tag[tagName]);
-                          const value = Array.isArray(tag[tagName])
-                            ? tag[tagName]
-                                .map(
-                                  (item: {
-                                    [key: string]:
-                                      | string
-                                      | {
-                                          property?: string;
-                                          else?: string;
-                                          str?: string;
-                                          href?: string;
-                                          text?: string;
-                                          src?: string;
-                                          alt?: string;
-                                        };
-                                  }) => {
-                                    if ("property" in item) {
-                                      return e.features && e.features[0]
-                                        ? e.features[0].properties[
-                                            item.property as string
-                                          ] || item.else
-                                        : item.else;
-                                    } else if ("str" in item) {
-                                      return item.str;
-                                    } else if (
-                                      tagName === "a" &&
-                                      "href" in item &&
-                                      "text" in item
-                                    ) {
-                                      // Handle link tag with href and text
-                                      return `<a href="${item.href}" target="_blank">${item.text}</a>`;
-                                    } else if (
-                                      tagName === "img" &&
-                                      "src" in item
-                                    ) {
-                                      // Handle image tag with src and optional alt
-                                      const altText = item.alt || "";
-                                      return `<img src="${item.src}" alt="${altText}" />`;
-                                    } else {
-                                      return ""; // Fallback for any unexpected structure
-                                    }
-                                  }
-                                )
-                                .join(" ") // Join all parts together to form the full tag content
-                            : tag[tagName];
+                // Add layer if it doesn't already exist
+                if (!map.getLayer(layer.id)) {
+                  map.addLayer({
+                    id: layer.id,
+                    type: "raster",
+                    source: layer.id,
+                    // @ts-expect-error expect partial paint defs
+                    paint: layer.paint || {}, // Include paint if it exists
+                    layout: {
+                      visibility: layer.visible ? "visible" : "none",
+                    },
+                  });
+                }
+              } else if (layer["data-type"] === "image") {
+                // Add source if it doesn't exist
+                if (!map.getSource(layer.id)) {
+                  map.addSource(layer.id, {
+                    type: "image",
+                    url: layer.url || "",
+                    coordinates: layer.coordinates || [],
+                  });
+                }
 
-                          return `<${tagName}>${value}</${tagName}>`;
-                        })
-                        .join(" "); // Join all tags to form the full popup content
+                // Add layer if it doesn't already exist
+                if (!map.getLayer(layer.id)) {
+                  map.addLayer({
+                    id: layer.id,
+                    type: "raster",
+                    source: layer.id,
+                    // @ts-expect-error expect partial paint defs
+                    paint: layer.paint || {}, // Include paint if it exists
+                    layout: {
+                      visibility: layer.visible ? "visible" : "none",
+                    },
+                  });
+                }
+              } else if (layer["data-type"] === "vector") {
+                // Add source if it doesn't exist
+                if (!map.getSource(layer.id)) {
+                  map.addSource(layer.id, {
+                    type: "vector",
+                    tiles: [layer.url || ""],
+                    minzoom: layer.minzoom || 0,
+                    maxzoom: layer.maxzoom || 22,
+                  });
+                }
 
-                      popup
-                        .setLngLat(e.lngLat)
-                        .setHTML(popupContent)
-                        .addTo(map);
-
-                      // If event is mouseover, add a mouseout event to remove the popup
-                      if (event.type === "mousemove") {
-                        map.on("mouseleave", layer.id, () => {
-                          popup.remove();
-                        });
-                      }
-                    });
+                // Add layer if it doesn't already exist
+                if (!map.getLayer(layer.id)) {
+                  map.addLayer({
+                    id: layer.id,
+                    type: layer["layer-type"],
+                    source: layer.id,
+                    "source-layer": layer["source-layer"] ?? layer.id,
+                    // @ts-expect-error expect partial paint defs
+                    paint: layer.paint || {}, // Include paint if it exists
+                    layout: {
+                      visibility: layer.visible ? "visible" : "none",
+                    },
                   });
                 }
               }
-            );
+              if (layer.mouseEvent) {
+                const popup = new maplibregl.Popup({ offset: 15 });
+
+                layer.mouseEvent.forEach((event) => {
+                  map.on(event.type, layer.id, (e) => {
+                    const popupContent = event.content
+                      .map((tag) => {
+                        const tagName = Object.keys(tag)[0];
+                        console.log(tag[tagName]);
+                        const value = Array.isArray(tag[tagName])
+                          ? tag[tagName]
+                              .map(
+                                (item: {
+                                  [key: string]:
+                                    | string
+                                    | {
+                                        property?: string;
+                                        else?: string;
+                                        str?: string;
+                                        href?: string;
+                                        text?: string;
+                                        src?: string;
+                                        alt?: string;
+                                      };
+                                }) => {
+                                  if ("property" in item) {
+                                    return e.features && e.features[0]
+                                      ? e.features[0].properties[
+                                          item.property as string
+                                        ] || item.else
+                                      : item.else;
+                                  } else if ("str" in item) {
+                                    return item.str;
+                                  } else if (
+                                    tagName === "a" &&
+                                    "href" in item &&
+                                    "text" in item
+                                  ) {
+                                    // Handle link tag with href and text
+                                    return `<a href="${item.href}" target="_blank">${item.text}</a>`;
+                                  } else if (
+                                    tagName === "img" &&
+                                    "src" in item
+                                  ) {
+                                    // Handle image tag with src and optional alt
+                                    const altText = item.alt || "";
+                                    return `<img src="${item.src}" alt="${altText}" />`;
+                                  } else {
+                                    return ""; // Fallback for any unexpected structure
+                                  }
+                                }
+                              )
+                              .join(" ") // Join all parts together to form the full tag content
+                          : tag[tagName];
+
+                        return `<${tagName}>${value}</${tagName}>`;
+                      })
+                      .join(" "); // Join all tags to form the full popup content
+
+                    popup.setLngLat(e.lngLat).setHTML(popupContent).addTo(map);
+
+                    // If event is mouseover, add a mouseout event to remove the popup
+                    if (event.type === "mousemove") {
+                      map.on("mouseleave", layer.id, () => {
+                        popup.remove();
+                      });
+                    }
+                  });
+                });
+              }
+            });
           }
         });
       }

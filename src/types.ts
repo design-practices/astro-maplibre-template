@@ -116,6 +116,12 @@ export interface VectorTileLayer {
     | SymbolLayerSpecification;
 }
 
+export type MapLayer =
+  | GeoJSONFeatureLayer
+  | RasterLayer
+  | ImageLayer
+  | VectorTileLayer;
+
 type CoordinatePair = [number, number];
 
 export interface MapEvent {
@@ -126,7 +132,7 @@ export interface MapEvent {
 }
 
 export interface LayerGroup {
-  layers: (GeoJSONFeatureLayer | RasterLayer | ImageLayer | VectorTileLayer)[];
+  layers: MapLayer[];
 }
 
 export interface MapBlock {
