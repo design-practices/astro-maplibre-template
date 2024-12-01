@@ -430,8 +430,7 @@ export function transformMixedTagToHTMLObject(tag: ContentTag): HTMLObject {
             )
           : undefined,
     };
-  }
-  if (tagName === "img") {
+  } else if (tagName === "img") {
     return {
       tag: tagName,
       class: (Array.isArray(tagContent) && tagContent[0].class) || [],
@@ -452,8 +451,20 @@ export function transformMixedTagToHTMLObject(tag: ContentTag): HTMLObject {
             )
           : undefined,
     };
+  } else if (tagName === "iframe") {
+    return {
+      tag: tagName,
+      class: (Array.isArray(tagContent) && tagContent[0].class) || [],
+      content: (Array.isArray(tagContent) && tagContent[0].str) || "",
+      props: [
+        {
+          src: (Array.isArray(tagContent) && tagContent[0].src) || "",
+        },
+      ],
+    };
   }
 
+  // Fallback for unknown tags
   return {
     tag: tagName,
     content: "",
@@ -539,8 +550,25 @@ export function renderHTMLObject(data: HTMLObject): string {
   const props = Object.entries(data.props || {})
     .map(([, value]) => `${Object.keys(value)}=${Object.values(value)}`)
     .join(" ");
-
-  return `<${data.tag} ${props}>${data.content || ""}${children}</${data.tag}>`;
+  const classes = clsx(data.class || []);
+  const styles = twMerge(
+    clsx(
+      data.style?.map(
+        (style) => `${Object.keys(style)[0]}: ${Object.values(style)[0]}`
+      ) || []
+    )
+  );
+  const id = data.id ? `id="${data.id}"` : "";
+  const key = data.key ? `key="${data.key}"` : "";
+  const classList = classes ? `class="${classes}"` : "";
+  const styleList = styles
+    ? `style="${Object.entries(styles)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join(";")}"`
+    : "";
+  return `<${data.tag} ${classList} ${styleList} ${id} ${key} ${props}>${
+    data.content || ""
+  }${children}</${data.tag}>`;
 }
 
 export function renderHTMLObjects(data: HTMLObject[]): string {

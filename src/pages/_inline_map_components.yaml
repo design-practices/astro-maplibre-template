@@ -85,6 +85,7 @@ blocks:
     content:
       - h2: 
         - str: "A subsection"
+          class: "text-center"
       - p: 
         - str: "You can go into more detail here."
       - p: 
