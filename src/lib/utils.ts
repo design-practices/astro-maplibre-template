@@ -412,8 +412,54 @@ export function transformMixedTagToHTMLObject(tag: ContentTag): HTMLObject {
   const tagName = Object.keys(tag)[0];
   const tagContent = tag[tagName];
 
-  if (typeof tagContent === "string") {
-    return { tag: tagName, content: tagContent };
+  if (
+    tagName === "p" ||
+    tagName === "h1" ||
+    tagName === "h2" ||
+    tagName === "h3" ||
+    tagName === "h4" ||
+    tagName === "h5" ||
+    tagName === "h6" ||
+    tagName === "span" ||
+    tagName === "a" ||
+    tagName === "div" ||
+    tagName === "ul" ||
+    tagName === "li"
+  ) {
+    return {
+      tag: tagName,
+      content: (Array.isArray(tagContent) && tagContent[0].str) || "",
+      class: (Array.isArray(tagContent) && tagContent[0].class) || [],
+      children:
+        typeof tagContent === "object" && tagContent.children
+          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            tagContent.children.map((child: any) =>
+              transformMixedTagToHTMLObject(child)
+            )
+          : undefined,
+    };
+  }
+  if (tagName === "img") {
+    return {
+      tag: tagName,
+      class: (Array.isArray(tagContent) && tagContent[0].class) || [],
+      content: (Array.isArray(tagContent) && tagContent[0].str) || "",
+      props: [
+        {
+          src: (Array.isArray(tagContent) && tagContent[0].src) || "",
+        },
+        {
+          alt: (Array.isArray(tagContent) && tagContent[0].alt) || "",
+        },
+      ],
+      children:
+        typeof tagContent === "object" && tagContent.children
+          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            tagContent.children.map((child: any) =>
+              transformMixedTagToHTMLObject(child)
+            )
+          : undefined,
+    };
   }
 
   return {
@@ -426,16 +472,17 @@ export function transformMixedTagToHTMLObject(tag: ContentTag): HTMLObject {
           transformMixedTagToHTMLObject(child)
         )
       : undefined,
+    props: tagContent.props ? [tagContent.props] : [],
   };
 }
 
 export function transformMixedBlockToHTMLObject(
   block: MixedBlock
-): HTMLObjectBlock[] {
+): HTMLObject[] {
   return block.content.map((tag) => transformMixedTagToHTMLObject(tag));
 }
 
-export function parseLegend(legend: Legend): HTMLObjectBlock {
+export function parseLegend(legend: Legend): HTMLObject {
   if (!legend || !legend.items || !Array.isArray(legend.items)) {
     throw new Error("Invalid legend format: must include 'items'.");
   }
