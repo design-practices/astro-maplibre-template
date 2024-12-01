@@ -192,3 +192,13 @@ export interface ContentBlock {
   classList?: string;
   content: MapBlock | MixedBlock | YAMLBlock[]; // Mixed content allows nesting
 }
+
+interface LegendItem {
+  color: string;
+  label: string;
+}
+
+export interface Legend {
+  title?: string;
+  items: LegendItem[];
+}

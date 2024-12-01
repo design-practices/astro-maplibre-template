@@ -6,6 +6,7 @@ import type {
   MapLayer,
   MixedBlock,
   HTMLObjectBlock,
+  Legend,
 } from "../types";
 import maplibregl from "maplibre-gl";
 export function cn(...inputs: ClassValue[]) {
@@ -421,4 +422,53 @@ function transformMixedTagToHTMLObject(tag: ContentTag): HTMLObjectBlock {
 
 function transformMixedBlockToHTMLObject(block: MixedBlock): HTMLObjectBlock[] {
   return block.content.map((tag) => transformMixedTagToHTMLObject(tag));
+}
+
+export function parseLegend(legend: Legend): HTMLObjectBlock {
+  if (!legend || !legend.items || !Array.isArray(legend.items)) {
+    throw new Error("Invalid legend format: must include 'items'.");
+  }
+  return {
+    tag: "div",
+    class: ["menu-item"],
+    children: [
+      ...(legend.title
+        ? [
+            {
+              tag: "h3",
+              content: legend.title,
+            },
+          ]
+        : []),
+      {
+        tag: "ul",
+        children: legend.items.map((item) => ({
+          tag: "li",
+          children: [
+            {
+              tag: "span",
+              class: ["legend-color"],
+              style: [{ "background-color": item.color }] as {
+                [key: string]: string;
+              }[],
+            },
+            {
+              tag: "span",
+              class: ["legend-label"],
+              content: item.label,
+            },
+          ],
+        })),
+      },
+    ].filter(Boolean), // Remove null elements
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function parseShorthand(data: any): HTMLObjectBlock[] {
+  if (data.legend) {
+    return [parseLegend(data.legend)];
+  }
+
+  throw new Error("Unsupported shorthand format");
 }
