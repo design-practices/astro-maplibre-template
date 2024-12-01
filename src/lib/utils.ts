@@ -530,3 +530,43 @@ export function parseShorthand(data: any): HTMLObject[] {
 
   throw new Error("Unsupported shorthand format");
 }
+
+export function renderHTMLObject(data: HTMLObject): string {
+  if (!data || !data.tag) return "";
+  const children = (data.children || [])
+    .map((child) => renderHTMLObject(child))
+    .join("");
+  const props = Object.entries(data.props || {})
+    .map(([, value]) => `${Object.keys(value)}=${Object.values(value)}`)
+    .join(" ");
+
+  return `<${data.tag} ${props}>${data.content || ""}${children}</${data.tag}>`;
+}
+
+export function renderHTMLObjects(data: HTMLObject[]): string {
+  return data.map((item) => renderHTMLObject(item)).join("");
+}
+
+export function parseMixedContent2(block: MixedBlock | ContentTag[]): string {
+  // Add a function to handle MixedBlock specifically
+  // old code for just MixedBlock types; should not need if all objects are converted to HTMLObject first
+  if (isContentTagCollection(block)) {
+    return block
+      .map((tag: ContentTag) => {
+        const attributes =
+          typeof tag === "object" ? Object.values(tag)[0] : null;
+        return `
+        <${tag.tag} ${tag.class ? `class="${tag.class}"` : ""}
+          ${attributes && typeof attributes === "object" && attributes.src ? `src="${attributes.src}"` : ""}
+          ${attributes && typeof attributes === "object" && attributes.alt ? `alt="${attributes.alt}"` : ""} >
+          ${attributes && typeof attributes === "object" && (attributes.property || attributes.str || "")}
+        </${tag.tag}>
+        `;
+      })
+      .join("");
+  } else if (isHTMLObjectBlock(block)) {
+    // Otherwise handle as HTMLObject - need to test
+    return renderHTMLObject(block);
+  }
+  return "";
+}
