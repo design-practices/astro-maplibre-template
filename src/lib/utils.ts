@@ -1,6 +1,12 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import type { LayerGroup, ContentTag, MapLayer } from "../types";
+import type {
+  LayerGroup,
+  ContentTag,
+  MapLayer,
+  MixedBlock,
+  HTMLObjectBlock,
+} from "../types";
 import maplibregl from "maplibre-gl";
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -353,4 +359,66 @@ export function parseMixedContent(block: ContentTag[]) {
         })
         .join(" ")
     : "not yet";
+}
+
+export function normalize(data: MixedBlock | HTMLObjectBlock): HTMLObjectBlock {
+  if (isMixedBlock(data)) {
+    return { tag: "div", children: transformMixedBlockToHTMLObject(data) };
+  }
+  return data; // Already in HTMLObject format
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function isMixedBlock(data: any): data is MixedBlock {
+  return (
+    typeof data === "object" &&
+    data.type === "content" &&
+    Array.isArray(data.content)
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function isHTMLObjectBlock(data: any): data is HTMLObjectBlock {
+  return typeof data === "object" && "tag" in data;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function parseYAMLBlock(data: any): HTMLObjectBlock[] {
+  if (isHTMLObjectBlock(data)) {
+    // Already in HTMLObject format
+    return Array.isArray(data) ? data : [data];
+  } else if (isMixedBlock(data)) {
+    // Transform MixedBlock into HTMLObjectBlock format
+    return data.content.map((tag) => transformMixedTagToHTMLObject(tag));
+  } else {
+    throw new Error(
+      "Invalid YAML structure: must match HTMLObject or MixedBlock schema"
+    );
+  }
+}
+
+// Transformer function: MixedBlock -> HTMLObjectBlock
+function transformMixedTagToHTMLObject(tag: ContentTag): HTMLObjectBlock {
+  const tagName = Object.keys(tag)[0];
+  const tagContent = tag[tagName];
+
+  if (typeof tagContent === "string") {
+    return { tag: tagName, content: tagContent };
+  }
+
+  return {
+    tag: tagName,
+    ...tagContent,
+    class: tagContent.class ? [tagContent.class] : [],
+    children: tagContent.children
+      ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        tagContent.children.map((child: any) =>
+          transformMixedTagToHTMLObject(child)
+        )
+      : undefined,
+  };
+}
+
+function transformMixedBlockToHTMLObject(block: MixedBlock): HTMLObjectBlock[] {
+  return block.content.map((tag) => transformMixedTagToHTMLObject(tag));
 }

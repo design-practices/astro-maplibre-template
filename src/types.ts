@@ -166,13 +166,29 @@ export interface ContentTag {
         src?: string; // Image source URL for img tags
         alt?: string; // Alternate text for img tags
         class: string; // Class name for the tag
+        children?: ContentTag[]; // Nested content tags
         id?: string; // ID for the tag
       };
 }
+
+export interface HTMLObjectBlock {
+  tag: string; // HTML tag name, e.g. "div", "a", "img", "p"
+  property?: string; // Indicates a feature property to pull data from
+  else?: string; // Fallback value if the property doesn't exist
+  key?: string; // Unique key for React rendering; if none, use objectType + index
+  id?: string; // ID for the tag
+  style?: { [key: string]: string }[]; // key: value pairs for CSS styles
+  class?: string[]; // Class names for the tag
+  props?: { [key: string]: string }[]; // e.g. href, src, alt
+  content?: string; // Inner HTML content
+  children?: HTMLObjectBlock[]; // Nested HTML objects
+}
+
+type YAMLBlock = MixedBlock | HTMLObjectBlock;
 
 export interface ContentBlock {
   type: "map" | "content" | "mixed";
   id?: string;
   classList?: string;
-  content: MapBlock | MixedBlock | ContentBlock[]; // Mixed content allows nesting
+  content: MapBlock | MixedBlock | YAMLBlock[]; // Mixed content allows nesting
 }
