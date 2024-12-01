@@ -5,7 +5,6 @@ import type {
   ContentTag,
   MapLayer,
   MixedBlock,
-  HTMLObjectBlock,
   HTMLObject,
   Legend,
 } from "../types";
@@ -363,13 +362,6 @@ export function parseMixedContent(block: ContentTag[]) {
     : "not yet";
 }
 
-export function normalize(data: MixedBlock | HTMLObjectBlock): HTMLObjectBlock {
-  if (isMixedBlock(data)) {
-    return { tag: "div", children: transformMixedBlockToHTMLObject(data) };
-  }
-  return data; // Already in HTMLObject format
-}
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isMixedBlock(data: any): data is MixedBlock {
   return (
@@ -464,16 +456,24 @@ export function transformMixedTagToHTMLObject(tag: ContentTag): HTMLObject {
 
   return {
     tag: tagName,
-    ...tagContent,
-    class: tagContent.class ? [tagContent.class] : [],
-    children: tagContent.children
-      ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        tagContent.children.map((child: any) =>
-          transformMixedTagToHTMLObject(child)
-        )
-      : undefined,
-    props: tagContent.props ? [tagContent.props] : [],
+    content: "",
+    class: [],
+    children: [],
+    props: [],
   };
+
+  // return {
+  //   tag: tagName,
+  //   ...tagContent,
+  //   class: tagContent.class ? [tagContent.class] : [],
+  //   children: tagContent.children
+  //     ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //       tagContent.children.map((child: any) =>
+  //         transformMixedTagToHTMLObject(child)
+  //       )
+  //     : undefined,
+  //   props: tagContent.props ? [tagContent.props] : [],
+  // };
 }
 
 export function transformMixedBlockToHTMLObject(
@@ -523,7 +523,7 @@ export function parseLegend(legend: Legend): HTMLObject {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function parseShorthand(data: any): HTMLObjectBlock[] {
+export function parseShorthand(data: any): HTMLObject[] {
   if (data.legend) {
     return [parseLegend(data.legend)];
   }
