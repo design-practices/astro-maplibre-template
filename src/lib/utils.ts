@@ -6,6 +6,7 @@ import type {
   MapLayer,
   MixedBlock,
   HTMLObjectBlock,
+  HTMLObject,
   Legend,
 } from "../types";
 import maplibregl from "maplibre-gl";
@@ -370,7 +371,7 @@ export function normalize(data: MixedBlock | HTMLObjectBlock): HTMLObjectBlock {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isMixedBlock(data: any): data is MixedBlock {
+export function isMixedBlock(data: any): data is MixedBlock {
   return (
     typeof data === "object" &&
     data.type === "content" &&
@@ -379,15 +380,23 @@ function isMixedBlock(data: any): data is MixedBlock {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isHTMLObjectBlock(data: any): data is HTMLObjectBlock {
+export function isHTMLObjectBlock(data: any): data is HTMLObject {
   return typeof data === "object" && "tag" in data;
 }
 
+export function isContentTag(data: unknown): data is ContentTag {
+  return typeof data === "object" && !Array.isArray(data);
+}
+
+export function isContentTagCollection(data: unknown): data is ContentTag[] {
+  return Array.isArray(data) && data.every(isContentTag);
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function parseYAMLBlock(data: any): HTMLObjectBlock[] {
+export function parseYAMLBlock(data: any): HTMLObject[] {
   if (isHTMLObjectBlock(data)) {
     // Already in HTMLObject format
-    return Array.isArray(data) ? data : [data];
+    return Array.isArray(data) ? data : [data as HTMLObject];
   } else if (isMixedBlock(data)) {
     // Transform MixedBlock into HTMLObjectBlock format
     return data.content.map((tag) => transformMixedTagToHTMLObject(tag));
@@ -399,7 +408,7 @@ export function parseYAMLBlock(data: any): HTMLObjectBlock[] {
 }
 
 // Transformer function: MixedBlock -> HTMLObjectBlock
-function transformMixedTagToHTMLObject(tag: ContentTag): HTMLObjectBlock {
+export function transformMixedTagToHTMLObject(tag: ContentTag): HTMLObject {
   const tagName = Object.keys(tag)[0];
   const tagContent = tag[tagName];
 
@@ -420,7 +429,9 @@ function transformMixedTagToHTMLObject(tag: ContentTag): HTMLObjectBlock {
   };
 }
 
-function transformMixedBlockToHTMLObject(block: MixedBlock): HTMLObjectBlock[] {
+export function transformMixedBlockToHTMLObject(
+  block: MixedBlock
+): HTMLObjectBlock[] {
   return block.content.map((tag) => transformMixedTagToHTMLObject(tag));
 }
 

@@ -1,9 +1,10 @@
 ---
 import fs from "fs";
 import yaml from "js-yaml";
-import type { ContentBlock, MapBlock, MixedBlock } from "@types";
+import type { ContentBlock, MapBlock, MixedBlock, YAMLBlock } from "@types";
 import { default as Map } from "../components/Map.astro";
 import { default as Content } from "../components/InlineContent.astro";
+import { default as HTMLObject } from "../components/HTMLObject.astro";
 // Load and parse the YAML file
 const fileContents = fs.readFileSync(
   "src/pages/_inline_map_components.yaml",
@@ -14,47 +15,76 @@ const pageData = yaml.load(fileContents) as { blocks: ContentBlock[] };
 const { blocks } = pageData;
 
 export interface Props {
-  blocks: ContentBlock[];
+  blocks: YAMLBlock[];
 }
 ---
 
 <div class="inline-maps-container">
   <main>
     {
-      blocks.map((block, index) => {
+      blocks.map((block: ContentBlock, index) => {
         if (block.type == "map") {
           return (
             <div id={`${block.type}-${index}`} class="inline-map">
-              <Map id={block.id? block.id : undefined} classList={block.classList? block.classList :undefined} block={block.content as MapBlock} />
+              <Map
+                id={block.id ? block.id : undefined}
+                classList={block.classList ? block.classList : undefined}
+                block={block.content as MapBlock}
+              />
             </div>
           );
         } else if (block.type == "content") {
           return (
             <div id={`${block.type}-${index}`} class="inline-mixed">
-              <Content id={block.id? block.id : undefined} classList={block.classList? block.classList :undefined} block={block.content as MixedBlock} />
+              <Content
+                id={block.id ? block.id : undefined}
+                classList={block.classList ? block.classList : undefined}
+                block={block}
+              />
             </div>
           );
         } else if (block.type == "mixed") {
           return (
-            <div id={`${block.type}-${index}`} class={block.classList? block.classList + " inline-multiple" : "inline-multiple"}>
-              {
-                Array.isArray(block.content) ? 
-                 (block.content.map((content, index) => {
+            <div
+              id={`${block.type}-${index}`}
+              class={
+                block.classList
+                  ? block.classList + " inline-multiple"
+                  : "inline-multiple"
+              }
+            >
+              {Array.isArray(block.content)
+                ? block.content.map((content, index) => {
                     if (content.type == "map") {
                       return (
                         <div id={`${content.type}-${index}`} class="inline-map">
-                          <Map id={content.id? content.id : undefined} classList={content.classList? content.classList :undefined} block={content.content as MapBlock} />
+                          <Map
+                            id={content.id ? content.id : undefined}
+                            classList={
+                              content.classList ? content.classList : undefined
+                            }
+                            block={content.content as MapBlock}
+                          />
                         </div>
                       );
                     } else if (content.type == "content") {
                       return (
-                        <div id={`${content.type}-${index}`} class="inline-mixed">
-                          <Content id={content.id? content.id : undefined} classList={content.classList? content.classList :undefined} block={content.content as MixedBlock} />
+                        <div
+                          id={`${content.type}-${index}`}
+                          class="inline-mixed"
+                        >
+                          <Content
+                            id={content.id ? content.id : undefined}
+                            classList={
+                              content.classList ? content.classList : undefined
+                            }
+                            block={content.content as MixedBlock}
+                          />
                         </div>
                       );
                     }
-                  })) : null
-                }              
+                  })
+                : null}
             </div>
           );
         }
@@ -62,4 +92,3 @@ export interface Props {
     }
   </main>
 </div>
-

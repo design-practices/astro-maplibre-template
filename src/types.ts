@@ -171,7 +171,7 @@ export interface ContentTag {
       };
 }
 
-export interface HTMLObjectBlock {
+export interface HTMLObject {
   tag: string; // HTML tag name, e.g. "div", "a", "img", "p"
   property?: string; // Indicates a feature property to pull data from
   else?: string; // Fallback value if the property doesn't exist
@@ -181,16 +181,21 @@ export interface HTMLObjectBlock {
   class?: string[]; // Class names for the tag
   props?: { [key: string]: string }[]; // e.g. href, src, alt
   content?: string; // Inner HTML content
-  children?: HTMLObjectBlock[]; // Nested HTML objects
+  children?: HTMLObject[]; // Nested HTML objects
 }
 
-type YAMLBlock = MixedBlock | HTMLObjectBlock;
+export interface HTMLObjectBlock {
+  type: "content";
+  content: HTMLObject[];
+}
+
+export type YAMLBlock = MixedBlock | HTMLObjectBlock;
 
 export interface ContentBlock {
-  type: "map" | "content" | "mixed";
+  type: "map" | "content";
   id?: string;
   classList?: string;
-  content: MapBlock | MixedBlock | YAMLBlock[]; // Mixed content allows nesting
+  content: MapBlock | YAMLBlock; // Mixed content allows nesting
 }
 
 interface LegendItem {
