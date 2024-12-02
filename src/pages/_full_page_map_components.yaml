@@ -49,6 +49,13 @@
   paint:
     circle-color: '#ff0000'
     circle-radius: 5
+  legend:
+    title: 'Legend'
+    items:
+      - color: '#cc0000'
+        label: 'Pizza Places'
+      - color: '#00cc00'
+        label: 'Bike Lanes'
   mouseEvent:
     - type: "click"
       content:

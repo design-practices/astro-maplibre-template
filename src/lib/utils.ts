@@ -452,6 +452,7 @@ export function parseLegend(legend: Legend): HTMLObject {
   if (!legend || !legend.items || !Array.isArray(legend.items)) {
     throw new Error("Invalid legend format: must include 'items'.");
   }
+  console.log(legend);
   return {
     tag: "div",
     class: ["menu-item"],
@@ -472,9 +473,7 @@ export function parseLegend(legend: Legend): HTMLObject {
             {
               tag: "span",
               class: ["legend-color"],
-              style: [{ "background-color": item.color }] as {
-                [key: string]: string;
-              }[],
+              style: { "background-color": item.color },
             },
             {
               tag: "span",
@@ -498,6 +497,7 @@ export function parseShorthand(data: any): HTMLObject[] {
 }
 
 export function renderHTMLObject(data: HTMLObject): string {
+  console.log("its fugly");
   if (!data || !data.tag) return "";
   const children = (data.children || [])
     .map((child) => renderHTMLObject(child))
