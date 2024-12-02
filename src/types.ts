@@ -127,7 +127,9 @@ type CoordinatePair = [number, number];
 export interface MapEvent {
   type: "click" | "mousemove" | "mouseenter" | "mouseleave";
   content: Array<{
-    [key: string]: string | ((e: maplibregl.MapLayerMouseEvent) => string);
+    [key: string]:
+      | string
+      | ((e: maplibregl.MapLayerMouseEvent) => string | void | HTMLObject);
   }>;
 }
 

@@ -9,6 +9,7 @@ import type {
   Legend,
 } from "../types";
 import maplibregl from "maplibre-gl";
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -224,55 +225,15 @@ export function loadMapLayers(
         layer.mouseEvent.forEach((event) => {
           map.on(event.type, layer.id, (e) => {
             const popupContent = event.content
-              .map((tag: { [key: string]: unknown }) => {
-                const tagName = Object.keys(tag)[0];
-
-                const value = Array.isArray(tag[tagName])
-                  ? tag[tagName]
-                      .map(
-                        (item: {
-                          [key: string]:
-                            | string
-                            | {
-                                property?: string;
-                                else?: string;
-                                str?: string;
-                                href?: string;
-                                text?: string;
-                                src?: string;
-                                alt?: string;
-                              };
-                        }) => {
-                          if ("property" in item) {
-                            return e.features && e.features[0]
-                              ? e.features[0].properties[
-                                  item.property as string
-                                ] || item.else
-                              : item.else;
-                          } else if ("str" in item) {
-                            return item.str;
-                          } else if (
-                            tagName === "a" &&
-                            "href" in item &&
-                            "text" in item
-                          ) {
-                            // Handle link tag with href and text
-                            return `<a href="${item.href}" target="_blank">${item.text}</a>`;
-                          } else if (tagName === "img" && "src" in item) {
-                            // Handle image tag with src and optional alt
-                            const altText = item.alt || "";
-                            return `<img src="${item.src}" alt="${altText}" />`;
-                          } else {
-                            return ""; // Fallback for any unexpected structure
-                          }
-                        }
-                      )
-                      .join(" ") // Join all parts together to form the full tag content
-                  : tag[tagName];
-
-                return `<${tagName}>${value}</${tagName}>`;
+              .map((tag) => {
+                if (isContentTag(tag)) {
+                  return renderHTMLObject(
+                    transformMixedTagToHTMLObject(tag, e)
+                  );
+                }
+                return "";
               })
-              .join(" "); // Join all tags to form the full popup content
+              .join("");
 
             popup.setLngLat(e.lngLat).setHTML(popupContent).addTo(map);
 
@@ -400,41 +361,65 @@ export function parseYAMLBlock(data: any): HTMLObject[] {
 }
 
 // Transformer function: MixedBlock -> HTMLObjectBlock
-export function transformMixedTagToHTMLObject(tag: ContentTag): HTMLObject {
+export function transformMixedTagToHTMLObject(
+  tag: ContentTag,
+  e?: maplibregl.MapLayerMouseEvent
+): HTMLObject {
   const tagName = Object.keys(tag)[0];
   const tagContent = tag[tagName];
 
+  if (!Array.isArray(tagContent)) {
+    return {
+      tag: tagName,
+      content: "",
+      class: [],
+      children: [],
+      props: [],
+    };
+  }
+
+  // Helper to resolve string or property values
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const resolveContent = (contentBlock: any): string => {
+    if (contentBlock.str) {
+      return contentBlock.str;
+    }
+    if (contentBlock.property && e?.features?.[0]?.properties) {
+      return (
+        e.features[0].properties[contentBlock.property] ||
+        contentBlock.else ||
+        ""
+      );
+    }
+    return contentBlock.else || "";
+  };
+
+  // Handle elements with children (e.g., `p`, `div`, `a`)
   if (
-    tagName === "p" ||
-    tagName === "h1" ||
-    tagName === "h2" ||
-    tagName === "h3" ||
-    tagName === "h4" ||
-    tagName === "h5" ||
-    tagName === "h6" ||
-    tagName === "span" ||
-    tagName === "a" ||
-    tagName === "div" ||
-    tagName === "ul" ||
-    tagName === "li"
+    tagContent.length > 1
+    // || tagContent.some((item) => typeof item === "object")
   ) {
     return {
       tag: tagName,
-      content: (Array.isArray(tagContent) && tagContent[0].str) || "",
-      class: (Array.isArray(tagContent) && tagContent[0].class) || [],
-      children:
-        typeof tagContent === "object" && tagContent.children
-          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            tagContent.children.map((child: any) =>
-              transformMixedTagToHTMLObject(child)
-            )
-          : undefined,
+      class: tagContent[0]?.class || [],
+      props: tagContent[0]?.href ? [{ href: tagContent[0].href }] : [],
+      children: tagContent.map((child) => {
+        if (typeof child === "object") {
+          return transformMixedTagToHTMLObject(
+            { [tagName]: [child] } as unknown as ContentTag,
+            e
+          );
+        }
+        return { tag: "span", content: resolveContent(child) };
+      }),
     };
-  } else if (tagName === "img") {
+  }
+
+  // Handle standalone tags (e.g., `img`, `iframe`)
+  if (tagName === "img" || tagName === "iframe") {
     return {
       tag: tagName,
-      class: (Array.isArray(tagContent) && tagContent[0].class) || [],
-      content: (Array.isArray(tagContent) && tagContent[0].str) || "",
+      class: tagContent[0]?.class || [],
       props: [
         {
           src: (Array.isArray(tagContent) && tagContent[0].src) || "",
@@ -443,54 +428,24 @@ export function transformMixedTagToHTMLObject(tag: ContentTag): HTMLObject {
           alt: (Array.isArray(tagContent) && tagContent[0].alt) || "",
         },
       ],
-      children:
-        typeof tagContent === "object" && tagContent.children
-          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            tagContent.children.map((child: any) =>
-              transformMixedTagToHTMLObject(child)
-            )
-          : undefined,
-    };
-  } else if (tagName === "iframe") {
-    return {
-      tag: tagName,
-      class: (Array.isArray(tagContent) && tagContent[0].class) || [],
-      content: (Array.isArray(tagContent) && tagContent[0].str) || "",
-      props: [
-        {
-          src: (Array.isArray(tagContent) && tagContent[0].src) || "",
-        },
-      ],
+      content: "",
     };
   }
 
-  // Fallback for unknown tags
+  // Default case for simple content
   return {
     tag: tagName,
-    content: "",
-    class: [],
+    class: tagContent[0]?.class || [],
+    content: resolveContent(tagContent[0]),
     children: [],
-    props: [],
   };
-
-  // return {
-  //   tag: tagName,
-  //   ...tagContent,
-  //   class: tagContent.class ? [tagContent.class] : [],
-  //   children: tagContent.children
-  //     ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //       tagContent.children.map((child: any) =>
-  //         transformMixedTagToHTMLObject(child)
-  //       )
-  //     : undefined,
-  //   props: tagContent.props ? [tagContent.props] : [],
-  // };
 }
 
 export function transformMixedBlockToHTMLObject(
-  block: MixedBlock
+  block: MixedBlock,
+  e?: maplibregl.MapLayerMouseEvent
 ): HTMLObject[] {
-  return block.content.map((tag) => transformMixedTagToHTMLObject(tag));
+  return block.content.map((tag) => transformMixedTagToHTMLObject(tag, e));
 }
 
 export function parseLegend(legend: Legend): HTMLObject {
@@ -551,18 +506,12 @@ export function renderHTMLObject(data: HTMLObject): string {
     .map(([, value]) => `${Object.keys(value)}=${Object.values(value)}`)
     .join(" ");
   const classes = clsx(data.class || []);
-  const styles = twMerge(
-    clsx(
-      data.style?.map(
-        (style) => `${Object.keys(style)[0]}: ${Object.values(style)[0]}`
-      ) || []
-    )
-  );
+
   const id = data.id ? `id="${data.id}"` : "";
   const key = data.key ? `key="${data.key}"` : "";
   const classList = classes ? `class="${classes}"` : "";
-  const styleList = styles
-    ? `style="${Object.entries(styles)
+  const styleList = data.style
+    ? `style="${Object.entries(data.style)
         .map(([key, value]) => `${key}: ${value}`)
         .join(";")}"`
     : "";
