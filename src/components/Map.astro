@@ -45,6 +45,8 @@ const layersJson = JSON.stringify(layers);
         null
       }
   </div>
+  
+  <div class="map-overlay" id={`${container}-legend`} style="display:none"></div>
   <link
     rel="stylesheet"
     href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css"
@@ -53,6 +55,12 @@ const layersJson = JSON.stringify(layers);
     
 import maplibregl from "maplibre-gl";
 import { loadMapLayers } from "@lib/utils";
+import type {
+  GeoJSONFeatureLayer,
+  RasterLayer,
+  ImageLayer,
+  VectorTileLayer,
+} from "@types";
     class MapLibreMap extends HTMLElement {
         constructor() {
           super();
@@ -74,6 +82,58 @@ import { loadMapLayers } from "@lib/utils";
             const layers = JSON.parse(this.dataset.layers || "[]");
             if (layers){
             loadMapLayers(map, layers);
+
+            // add legend if layers have legend items
+            if (
+                  layers.some(
+                    (
+                      layer:
+                        | GeoJSONFeatureLayer
+                        | RasterLayer
+                        | ImageLayer
+                        | VectorTileLayer
+                    ) =>
+                      layer.legend &&
+                      !Array.isArray(layer.legend) &&
+                      layer.legend.items.length > 0
+                  )
+                ) {
+                  const menu = document.getElementById(
+                    `${this.dataset.container}-legend`
+                  );
+                  if (menu) {
+                    menu.innerHTML = layers
+                      .map(
+                        (
+                          layer:
+                            | GeoJSONFeatureLayer
+                            | RasterLayer
+                            | ImageLayer
+                            | VectorTileLayer
+                        ) =>
+                          layer.legend &&
+                          !Array.isArray(layer.legend) && layer.legend.items.length > 0 &&
+                          `<div class="menu-item">
+                            ${layer.legend.title ? `<h3>${layer.legend.title}</h3>` : ""}
+                            <ul>
+                              ${layer.legend.items
+                                .map(
+                                  (item) =>
+                                    `<li>
+                                      <span class="legend-color" style="background-color: ${item.color}"></span>
+                                      <span class="legend-label">${item.label}</span>
+                                    </li>`
+                                )
+                                .join("")}
+                            </ul>
+                          </div>`
+                      )
+                      .join("");
+                    
+                    menu.style.display = "block";
+
+                  }
+                }
             }
           });
 

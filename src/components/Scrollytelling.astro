@@ -20,6 +20,8 @@ interface MapStep {
   position?: "left" | "right" | "centered" | "full";
   layers?: LayerGroup[];
   persist?: boolean;
+  mapAnimation?: "flyTo" | "easeTo" | "jumpTo";
+  rotateAnimation?: boolean;
 }
 
 const mapData: MapStep[] = yaml.load(fileContents) as MapStep[];
@@ -37,6 +39,8 @@ export interface Props {
   pitch?: number;
   bearing?: number;
   layers?: LayerGroup[];
+  mapAnimation?: "flyTo" | "easeTo" | "jumpTo";
+  rotateAnimation?: boolean;
 }
 
 const {
@@ -50,6 +54,8 @@ const {
   pitch,
   bearing,
   layers,
+  mapAnimation,
+  rotateAnimation,
 } = Astro.props;
 const layersJson = layers ? JSON.stringify(layers) : undefined;
 ---
@@ -58,7 +64,7 @@ const layersJson = layers ? JSON.stringify(layers) : undefined;
   <!-- Map Container -->
   <div
     id={container}
-    class="maplibre-inline map-container"
+    class="maplibre-scrollytelling map-container"
     style={{ width: "100vw", height: "100vh" }}
   >
     <maplibre-map
@@ -72,6 +78,8 @@ const layersJson = layers ? JSON.stringify(layers) : undefined;
       data-pitch={pitch}
       data-bearing={bearing}
       data-layers={layersJson}
+      data-map-animation={mapAnimation}
+      data-map-rotate-animation={rotateAnimation}
     >
       <link
         rel="stylesheet"
@@ -80,6 +88,7 @@ const layersJson = layers ? JSON.stringify(layers) : undefined;
       <script>
         import maplibregl from "maplibre-gl";
         import type { MapLayer } from "@types";
+        import type { LngLatLike } from "maplibre-gl";
         import { loadMapLayers } from "@lib/utils";
         class MapLibreScrollytellingMap extends HTMLElement {
           constructor() {
@@ -127,14 +136,33 @@ const layersJson = layers ? JSON.stringify(layers) : undefined;
                         loadMapLayers(map, layers, true);
                       }
 
-                      // Update the MapLibre map
-                      map.flyTo({
-                        center: center as maplibregl.LngLatLike,
+                      // Update map position via animation type if specified
+                      map[
+                        (entry.target.getAttribute("data-map-animation") as
+                          | "flyTo"
+                          | "easeTo"
+                          | "jumpTo") ?? "flyTo"
+                      ]({
+                        center: center as LngLatLike,
                         zoom: zoom ? parseFloat(zoom) : undefined,
                         pitch: pitch ? parseFloat(pitch) : undefined,
                         bearing: bearing ? parseFloat(bearing) : undefined,
                         essential: true,
                       });
+
+                      const rotateAnimation =
+                        entry.target.getAttribute(
+                          "data-map-rotate-animation"
+                        ) === "true";
+                      
+                      if (rotateAnimation === true) {
+                        map.once("moveend", () => {
+                          map.rotateTo(map.getBearing() + 180, {
+                            duration: 30000,
+                            easing: (t: number) => t,
+                          });
+                        });
+                      } 
                     } else {
                       if (!entry.target.getAttribute("data-persist")) {
                         // Remove the active class from the section
@@ -184,6 +212,10 @@ const layersJson = layers ? JSON.stringify(layers) : undefined;
           data-pitch={step.pitch}
           data-bearing={step.bearing}
           data-layers={JSON.stringify(step.layers)}
+          data-map-animation={step.mapAnimation}
+          data-map-rotate-animation={
+            step.rotateAnimation === true ? "true" : "false"
+          }
           class:list={[step.position ? step.position : "lefty", "step"]}
         >
           <div class="step-content">

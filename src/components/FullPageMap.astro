@@ -1,9 +1,7 @@
 ---
 import fs from "fs";
 import yaml from "js-yaml";
-import type {
-  LayerGroup
-} from "@types";
+import type { LayerGroup } from "@types";
 // Load and parse the YAML file
 const fileContents = fs.readFileSync(
   "src/pages/_full_page_map_components.yaml",
@@ -46,6 +44,7 @@ const {
     style={{ width: "100vw", height: "100vh" }}
   >
     <nav id={`${container}-menu`} class="menu"></nav>
+    <div class="map-overlay" id={`${container}-legend`} style="display:none"></div>
     <maplibre-fullpage-map
       data-latitude={latitude}
       data-longitude={longitude}
@@ -65,6 +64,12 @@ const {
       <script>
         import maplibregl from "maplibre-gl";
         import { loadMapLayers } from "@lib/utils";
+        import type {
+          GeoJSONFeatureLayer,
+          ImageLayer,
+          RasterLayer,
+          VectorTileLayer,
+        } from "@types";
         class MapLibreFullPageMap extends HTMLElement {
           constructor() {
             super();
@@ -91,6 +96,58 @@ const {
                 : undefined;
               if (layers) {
                 loadMapLayers(map, layers);
+
+                // add legend if layers have legend items
+                if (
+                  layers.some(
+                    (
+                      layer:
+                        | GeoJSONFeatureLayer
+                        | RasterLayer
+                        | ImageLayer
+                        | VectorTileLayer
+                    ) =>
+                      layer.legend &&
+                      !Array.isArray(layer.legend) &&
+                      layer.legend.items.length > 0
+                  )
+                ) {
+                  const menu = document.getElementById(
+                    `${this.dataset.container}-legend`
+                  );
+                  if (menu) {
+                    menu.innerHTML = layers
+                      .map(
+                        (
+                          layer:
+                            | GeoJSONFeatureLayer
+                            | RasterLayer
+                            | ImageLayer
+                            | VectorTileLayer
+                        ) =>
+                          layer.legend &&
+                          !Array.isArray(layer.legend) && layer.legend.items.length > 0 &&
+                          `<div class="menu-item">
+                            ${layer.legend.title ? `<h3>${layer.legend.title}</h3>` : ""}
+                            <ul>
+                              ${layer.legend.items
+                                .map(
+                                  (item) =>
+                                    `<li>
+                                      <span class="legend-color" style="background-color: ${item.color}"></span>
+                                      <span class="legend-label">${item.label}</span>
+                                    </li>`
+                                )
+                                .join("")}
+                            </ul>
+                          </div>`
+                      )
+                      .join("");
+                    
+                    menu.style.display = "block";
+
+                  }
+                } 
               }
             });
           }
