@@ -3,25 +3,22 @@ import fs from "fs";
 import yaml from "js-yaml";
 import type { LayerGroup } from "@types";
 // Load and parse the YAML file
-const fileContents = fs.readFileSync(
-  "src/pages/_full_page_map_components.yaml",
-  "utf8"
-);
+
 export interface Props {
   latitude: number;
   longitude: number;
   zoom: number;
   mapstyle: string;
   container: string;
-
   /** If `false`, the map will not respond to interaction.  This is a static map built with the full web map rendering API. */
   interactive?: boolean;
   containerstyle?: string;
   pitch?: number;
   bearing?: number;
+  yamlFile: string;
 }
 
-const layers: LayerGroup[] = yaml.load(fileContents) as LayerGroup[];
+
 
 const {
   latitude,
@@ -33,7 +30,16 @@ const {
   containerstyle = "height: 61.8vh",
   pitch,
   bearing,
+  yamlFile,
 } = Astro.props;
+
+console.log(yamlFile);
+const fileContents = fs.readFileSync(
+  "src/pages/" + yamlFile,
+  "utf8"
+);
+
+const layers: LayerGroup[] = yaml.load(fileContents) as LayerGroup[];
 ---
 
 <div class="full-page-map-container">
