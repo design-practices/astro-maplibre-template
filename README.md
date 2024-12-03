@@ -201,6 +201,27 @@ This gives you some flexibility in how you organize items in the legend.
 
 You can update the legend div's properties based on the class and id associated with the legend div in the `styles/global.css` file. The legend has these properties and accessors, which are based on the `FullPageMap`'s container property: `<div class="map-overlay" id={`${container}-legend`}></div>` (i.e. in the basic example the id is `maplibre-full-map-legend`). By default, the legend will appear in the top left corner; use the css rules in `styles/global.css` for `.map-overlay` and `.legend-color` to adjust the position as needed.
 
+#### Changing layer order
+You can use the `before` option to change the layer order. This option specifies the ID of the layer to insert the current layer before. For example, to insert a layer before the "water" layer, you would use the following syntax to produce the effect below (where `roads_labels_major` is a layer defined in the `style.json` file):
+```
+- id: 'test-image'
+  label: 'Image Overlay'
+  toggle: true  
+  visible: false
+  data-type: 'image'
+  layer-type: 'image'
+  url: 'https://docs.mapbox.com/mapbox-gl-js/assets/radar.gif'
+  before: 'roads_labels_major'
+  coordinates: [[-80.425, 46.437],
+                [-71.516, 46.437],
+                [-71.516, 37.936],
+                [-80.425, 37.936]]
+```
+![alt text](image-1.png)
+
+
+
+
 #### Map `Props` Interface
 
 Baseline map options. Note that map layers are added via the `_full_map_map_components.yaml` file.
@@ -232,6 +253,7 @@ Baseline map options. Note that map layers are added via the `_full_map_map_comp
 | `url`        | `string`  | Yes      | URL to the GeoJSON data source for this layer.                                                                     | `'https://data.cityofnewyork.us/resource/mzxg-pwib.geojson?$limit=10000'` |
 | `paint`      | `object`  | No       | MapLibre paint properties for styling the layer. Values depend on the `layer-type`.                                | `{ "line-color": "#000000", "line-width": 3 }`   |
 | `mouseEvent` | `array`   | No       | Array of events to listen for on this layer, specifying popup content on event.                                    | See detailed `mouseEvent` table below            |
+| `before`     | `string`  | No       | ID of the layer to insert this layer before.                                                                       | `'water'`                                        |
 | `legend`     | `object`  | No       | Legend properties for the layer.                                                                                   | ```legend: {items: [{color:'#fff', label:'white orb'}]} ``` |
 
 #### `mouseEvent` Content
