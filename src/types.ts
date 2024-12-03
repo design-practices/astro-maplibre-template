@@ -54,6 +54,7 @@ export interface GeoJSONFeatureLayer {
       label: string;
     }[];
   };
+  before?: string;
 }
 
 /**
@@ -81,6 +82,7 @@ export interface RasterLayer {
       label: string;
     }[];
   };
+  before?: string;
 }
 
 /**
@@ -104,6 +106,7 @@ export interface ImageLayer {
       label: string;
     }[];
   };
+  before?: string;
 }
 
 export interface VectorTileLayer {
@@ -142,6 +145,7 @@ export interface VectorTileLayer {
       label: string;
     }[];
   }[];
+  before?: string;
 }
 
 type CoordinatePair = [number, number];

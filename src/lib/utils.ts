@@ -123,21 +123,24 @@ export function loadMapLayers(
 
               // Add layer if it doesn't already exist
               if (!map.getLayer(layer.id)) {
-                map.addLayer({
-                  id: layer.id,
-                  type: layer["layer-type"],
-                  // @ts-expect-error expect source to be string via source above
-                  source: layer.id,
-                  // @ts-expect-error expect partial paint defs
-                  paint: layer.paint || {}, // Include paint if it exists
-                  layout: {
-                    visibility: visibility
-                      ? "visible"
-                      : layer.visible
+                map.addLayer(
+                  {
+                    id: layer.id,
+                    type: layer["layer-type"],
+                    // @ts-expect-error expect source to be string via source above
+                    source: layer.id,
+                    // @ts-expect-error expect partial paint defs
+                    paint: layer.paint || {}, // Include paint if it exists
+                    layout: {
+                      visibility: visibility
                         ? "visible"
-                        : "none",
+                        : layer.visible
+                          ? "visible"
+                          : "none",
+                    },
                   },
-                });
+                  layer?.before ?? undefined
+                );
               }
             });
         } else if (layer["data-type"] === "raster") {
@@ -152,20 +155,23 @@ export function loadMapLayers(
 
           // Add layer if it doesn't already exist
           if (!map.getLayer(layer.id)) {
-            map.addLayer({
-              id: layer.id,
-              type: "raster",
-              source: layer.id,
-              // @ts-expect-error expect partial paint defs
-              paint: layer.paint || {}, // Include paint if it exists
-              layout: {
-                visibility: visibility
-                  ? "visible"
-                  : layer.visible
+            map.addLayer(
+              {
+                id: layer.id,
+                type: "raster",
+                source: layer.id,
+                // @ts-expect-error expect partial paint defs
+                paint: layer.paint || {}, // Include paint if it exists
+                layout: {
+                  visibility: visibility
                     ? "visible"
-                    : "none",
+                    : layer.visible
+                      ? "visible"
+                      : "none",
+                },
               },
-            });
+              layer?.before ?? undefined
+            );
           }
         } else if (layer["data-type"] === "image") {
           // Add source if it doesn't exist
@@ -179,20 +185,23 @@ export function loadMapLayers(
 
           // Add layer if it doesn't already exist
           if (!map.getLayer(layer.id)) {
-            map.addLayer({
-              id: layer.id,
-              type: "raster",
-              source: layer.id,
-              // @ts-expect-error expect partial paint defs
-              paint: layer.paint || {}, // Include paint if it exists
-              layout: {
-                visibility: visibility
-                  ? "visible"
-                  : layer.visible
+            map.addLayer(
+              {
+                id: layer.id,
+                type: "raster",
+                source: layer.id,
+                // @ts-expect-error expect partial paint defs
+                paint: layer.paint || {}, // Include paint if it exists
+                layout: {
+                  visibility: visibility
                     ? "visible"
-                    : "none",
+                    : layer.visible
+                      ? "visible"
+                      : "none",
+                },
               },
-            });
+              layer?.before ?? undefined
+            );
           }
         } else if (layer["data-type"] === "vector") {
           // Add source if it doesn't exist
@@ -207,21 +216,24 @@ export function loadMapLayers(
 
           // Add layer if it doesn't already exist
           if (!map.getLayer(layer.id)) {
-            map.addLayer({
-              id: layer.id,
-              type: layer["layer-type"],
-              source: layer.id,
-              "source-layer": layer["source-layer"] ?? layer.id,
-              // @ts-expect-error expect partial paint defs
-              paint: layer.paint || {}, // Include paint if it exists
-              layout: {
-                visibility: visibility
-                  ? "visible"
-                  : layer.visible
+            map.addLayer(
+              {
+                id: layer.id,
+                type: layer["layer-type"],
+                source: layer.id,
+                "source-layer": layer["source-layer"] ?? layer.id,
+                // @ts-expect-error expect partial paint defs
+                paint: layer.paint || {}, // Include paint if it exists
+                layout: {
+                  visibility: visibility
                     ? "visible"
-                    : "none",
+                    : layer.visible
+                      ? "visible"
+                      : "none",
+                },
               },
-            });
+              layer?.before ?? undefined
+            );
           }
         }
         // Handle mouse events if defined
