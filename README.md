@@ -22,6 +22,22 @@ Replace npm with your package manager of choice. `npm`, `pnpm`, `yarn`, `bun`, e
 | `npm run lint`            | Run ESLint                                       |
 | `npm run lint:fix`        | Auto-fix ESLint issues                           |
 
+## Customization
+### Website Title
+You can change the website title (which appears in the header and the footer) by editing the `consts.ts` file in the `/src` directory. Change the value of the `NAME` property in the `Site` constant to the desired title. You'll see there are entries for other kinds of metadata that you can also add to your site.
+![alt text](./docs/img/image-1.png)
+
+### Website URL
+To change your site's URL using Github pages, there are a few steps. 
+1. Open the `index.astro` file in the `/src/pages` directory. You'll see a number of links that look like this: `<a href="/astro-maplibre-template/inline_maps">/inline_maps</a>`. You'll need to change the `astro-maplibre-template` portion to match exactly what you named your site in the `consts.ts` file for each link. 
+2. Open `astro.config.mjs` in the root directory. You'll see a `base` property in the `site` object. Change the value of the `base` property to match the name of your site. It must match exactly what you named your site in the `consts.ts` file. ![alt text](./docs/img/image-4.png)
+3. Finally, go to your github repository on the web. The site's deploy steps (the `deploy.yaml` file that publishes the page) is configured to take the URL for the website based on the repository name. You'll need to change the repository name to match the name of your site. ![alt text](./docs/img/image-3.png)
+
+With these changes, you should have a fully customized site with the title of your choice; in the above example, instead of reaching the site at `https://design-practices.github.io/astro-maplibre-template/`, you would reach it at `https://design-practices.github.io/foo-bar/`.
+
+You could separately launch the site on a custom domain using providers such as cloudflare, vercel, or netlify. Cloudflare is a great option because hosting static sites like this one is free; you only pay for the domain name. For more information on that process, read more [here](https://developers.cloudflare.com/pages/get-started/git-integration/).
+
+
 ## Inline
 Inline maps using MDX are shown in the `inline_maps.mdx` file in `/pages`. Within the `<Container />` object you can use traditional markdown as well as the MDX `Maplibre` object. You can pass styles and layers to the map. It would be good to be able to pass the option to control layer visibility and onClick behavior from the layers arg that's passed in as well, to come.
 
