@@ -472,9 +472,9 @@ export function parseLegend(legend: Legend): HTMLObject {
             {
               tag: "span",
               class: ["legend-color"],
-              style: { "background-color": item.color } as {
+              style: [{ "background-color": item.color }] as {
                 [key: string]: string;
-              },
+              }[],
             },
             {
               tag: "span",

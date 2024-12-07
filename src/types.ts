@@ -147,6 +147,8 @@ export interface VectorTileLayer {
 export type MapLayer =
   | GeoJSONFeatureLayer
   | RasterLayer
+  // | RasterDEMLayer
+  // | VideoLayer
   | ImageLayer
   | VectorTileLayer;
 
