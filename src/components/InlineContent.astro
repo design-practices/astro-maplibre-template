@@ -1,39 +1,62 @@
 ---
-import type { MixedBlock } from "@types";
+import type { ContentBlock } from "@types";
 export interface Props {
   id?: string;
   classList?: string;
-  block: MixedBlock;
+  block: ContentBlock;
 }
 
 const { id, classList, block } = Astro.props;
 
-const pageContent = JSON.stringify(block);
+// Serialize block data for use in the web component
+const blockData = JSON.stringify(block);
 ---
 
-<inline-mixed-content data-block={pageContent} data-classlist={classList} data-id={id}></inline-mixed-content>
-<div id="inline-mixed-content" class="inline-mixed-content">
-  <script>
-    
-import { parseMixedContent } from "../lib/utils";
+<inline-mixed-content
+  data-block={blockData}
+  data-classlist={classList}
+  data-id={id}
+>
+</inline-mixed-content>
 
-    class InlineMixedContent extends HTMLElement {
-      constructor() {
-        super();
-        const block = this.dataset.block ? JSON.parse(this.dataset.block) : {};
-        const classList = this.dataset.classlist ? this.dataset.classlist : "";
-        const id = this.dataset.id ? this.dataset.id : "";
-        const parsedContent = parseMixedContent(block);
+<script>
+  import {
+    isMixedBlock,
+    transformMixedBlockToHTMLObject,
+  } from "@lib/utils";
+  import { renderHTMLObject, renderHTMLObjects} from "@lib/utils";
+  // Utility function for rendering HTMLObject or MixedBlock
+
+  class InlineMixedContent extends HTMLElement {
+    constructor() {
+      super();
+
+      // Parse dataset attributes
+      const block = this.dataset.block ? JSON.parse(this.dataset.block) : {};
+      const classList = this.dataset.classlist || "";
+      const id = this.dataset.id || "";
+      // check if is mixed block or html block
+      if (isMixedBlock(block)) {
+        const convertedBlock = transformMixedBlockToHTMLObject(block);
+        // Render parsed content
+        const parsedContent = renderHTMLObjects(convertedBlock);
+
+        // Set inner HTML
         this.innerHTML = parsedContent;
-        // apply classList and id to the parent block element
-        if (classList.length > 0) {
-          this.className += ` ${classList}`;
-        }
-        if (id.length > 0) {
-          this.id = id;
-        }
+      } else {
+        // Render parsed content
+        const parsedContent = Array.isArray(block)
+          ? block.map((item) => renderHTMLObject(item)).join("")
+          : renderHTMLObject(block);
+        // Set inner HTML
+        this.innerHTML = parsedContent;
       }
-    }    
-    window.customElements.define("inline-mixed-content", InlineMixedContent);
-  </script>
-</div>
+      // Apply classList and ID to the parent block element
+      if (classList) this.className += ` ${classList}`;
+      if (id) this.id = id;
+    }
+  }
+
+  // Define the custom element
+  window.customElements.define("inline-mixed-content", InlineMixedContent);
+</script>

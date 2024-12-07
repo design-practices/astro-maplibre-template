@@ -87,12 +87,7 @@ const layersJson = layers ? JSON.stringify(layers) : undefined;
       />
       <script>
         import maplibregl from "maplibre-gl";
-        import type {
-          GeoJSONFeatureLayer,
-          RasterLayer,
-          ImageLayer,
-          VectorTileLayer,
-        } from "@types";
+        import type { MapLayer } from "@types";
         import type { LngLatLike } from "maplibre-gl";
         import { loadMapLayers } from "@lib/utils";
         class MapLibreScrollytellingMap extends HTMLElement {
@@ -180,22 +175,14 @@ const layersJson = layers ? JSON.stringify(layers) : undefined;
                           ? JSON.parse(layersAttr)
                           : undefined;
                         if (layers) {
-                          layers.forEach(
-                            (
-                              layer:
-                                | GeoJSONFeatureLayer
-                                | RasterLayer
-                                | ImageLayer
-                                | VectorTileLayer
-                            ) => {
-                              if (map.getLayer(layer.id)) {
-                                map.removeLayer(layer.id);
-                              }
-                              if (map.getSource(layer.id)) {
-                                map.removeSource(layer.id);
-                              }
+                          layers.forEach((layer: MapLayer) => {
+                            if (map.getLayer(layer.id)) {
+                              map.removeLayer(layer.id);
                             }
-                          );
+                            if (map.getSource(layer.id)) {
+                              map.removeSource(layer.id);
+                            }
+                          });
                         }
                       }
                     }
