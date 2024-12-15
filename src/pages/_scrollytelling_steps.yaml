@@ -1,59 +1,281 @@
-- title: Introduction
+- title: Identifying Transit Deserts in New York City
+  center: [-73.9741, 40.7805]
+  zoom: 12
+  pitch: 0
+  bearing: 0
+  description: This study examines the alignment of public transit supply and demand in New York City to identify transit deserts—areas with limited subway access despite high demand. Using GIS analysis, it integrates data on subway routes, stations, and demographics to highlight accessibility gaps and provide insights for improving transit equity and efficiency.
+  media: "https://cdn2.hubspot.net/hubfs/477797/andre-benz-257878-unsplash.jpg"
+  position: left
+
+- title: NYC Subway Lines & Stations
   center: [-74.0060, 40.7128]
   zoom: 10
   pitch: 0
   bearing: 0
-  description: Welcome to the map scrollytelling app. You can set position, zoom, pitch, and bearing via the top-level props.
-
-- title: Section Title - Squirrels in Central Park
-  center: [-73.96778, 40.78376]
-  zoom: 14
-  pitch: 0
-  bearing: 20
-  description: Now we zoom in. A layer is added from a geojson  Layer paint properties are passed, and layers are set to turn off when you continue scrolling via the `persist:false` attribute.
+  description: Explore how the subway lines span the city, connecting key neighborhoods and providing essential access for daily commuters
+  media: "https://preview.redd.it/redesigned-the-new-york-city-subway-map-with-rail-airport-v0-tk49sds5drgc1.jpeg?width=1080&crop=smart&auto=webp&s=623a9c6cb4f06e9261805d6cdefddcb224e8902a"
+  position: left
   
-  layers:
-  # id of layer
-  - id: 'squirrel-census'
-  # path to dataset 
-  # note anything uploaded in the public/data folder will be uploaded to your site at url/data/file.png
-    url: './data/squirrel20241021.geojson'
-  # type of symbol
-    type: 'circle'
-  # type of symbol
-    data-type: 'geojson'
-    layer-type: 'circle'
-    persist: true
-    paint:
-      circle-radius: 5
-      circle-color: '#826260'
-      circle-opacity: 0.8
+  layers:  
+    - id: 'subway-lines'
+      url: '/astro-maplibre-template/data//data/Subway Lines.geojson'
+      type: 'line'
+      data-type: 'geojson'
+      layer-type: 'line'
+      persist: false
+      paint:
+        line-width: 2
+        line-color: 
+          match:
+            - get: "rt_symbol"  # Attribute in GeoJSON that distinguishes lines
+            - "A": "#0039A6"
+            - "C": "#0039A6"
+            - "E": "#0039A6"
+            - "B": "#FF6319"
+            - "D": "#FF6319"
+            - "F": "#FF6319"
+            - "M": "#FF6319"
+            - "G": "#6CBE45"
+            - "J": "#996633"
+            - "Z": "#996633"
+            - "L": "#A7A9AC"
+            - "N": "#FCCC0A"
+            - "Q": "#FCCC0A"
+            - "R": "#FCCC0A"
+            - "1": "#EE352E"
+            - "2": "#EE352E"
+            - "3": "#EE352E" 
+            - "4": "#00933C"
+            - "5": "#00933C"
+            - "6": "#00933C"
+            - "7": "#B933AD"         
+        line-opacity: 1
+      
+            
+    - id: 'subway-stations'
+      url: '/astro-maplibre-template/data/SubwayStations.geojson'
+      interactive: true
+      toggle: true
+      type: 'circle'  
+      data-type: 'geojson'
+      layer-type: 'circle'
+      persist: false
+      paint:
+        circle-radius: 4  
+        circle-color: '#000080' 
+        circle-opacity: 0.8
+      legend:
+        title: Subway Stations
+        items:
+          - label: Subway Station
+            color: "#000080"
+      mouseEvent:
+        - type: "click"
+          content:
+            - p:
+                - str: "Station name: "
+                - property: "STOP_NAMEr"
+                  else: "N/A"
 
-- title: Polygon Layer
-  # center: [-73.96778, 40.78376]
-  center: [-74.00739, 40.67930]
-  zoom: 14
+- title: Transit Demand (Work-Age Popultaion%) 
+  center: [-74.0060, 40.7128]
+  zoom: 10
   pitch: 0
-  bearing: 20
-  description: Now we zoom to a new location. And add a polygon layer of the innundation zone from Hurricane Sandy via GeoJSON endpoint. Layer paint properties are passed (notice they are different from the syntax for the point layer). 
+  bearing: 0
+  description: One key attributes to evaluate the transit demand is the percentage of the working-age population, representing a potential demographic reliant on transit for commuting
   layers:
-  - id: 'sandy'
-    url: 'https://data.cityofnewyork.us/resource/5xsi-dfpx.geojson'
-    type: 'fill'
-    data-type: 'geojson'
-    layer-type: 'fill'
-    persist: false
-    paint:
-      fill-color: '#c1e2e6'
-      fill-opacity: 0.8
+    - id: 'workage-percentage'
+      url: '/astro-maplibre-template/data/WorkAge.geojson'
+      type: 'fill'
+      data-type: 'geojson'
+      layer-type: 'fill'
+      persist: true
+      paint:
+        fill-color:
+          property: 'z-score'  # Using z-score for color ramp
+          stops:
+            - [-4.2860, '#285f82']  # Dark purple
+            - [-1.5500, '#2b83ba']  # Purple
+            - [-0.7970, '#74b6ad']  # Blue-purple
+            - [-0.2610, '#b7e2a8']  # Cyan
+            - [0.2280, '#e7f5b7']   # Light greenish cyan
+            - [0.7640, '#fee8a4']   # Light green
+            - [1.4220, '#fdba6e']   # Yellow-green
+            - [2.3350, '#ed6e43']   # Yellow
+            - [4.7050, '#d7191c']   # Orange
+          default: 'rgba(0, 0, 0, 0)' 
+        fill-opacity: 0.8
+
+- center: [-73.96598, 40.74817]
+  zoom: 12.18
+  pitch: 0
+  bearing: 0
+  description: Lower Manhattan serves as a major employment and commercial hub, attracting a large commuting workforce from surrounding areas. Consequently, these neighborhoods experience significant transit usage, underscoring the need for robust and accessible transit infrastructure to accommodate the commuting demands of this population.
+  layers:
+    - id: 'workage-percentage'
+      url: '/astro-maplibre-template/data/WorkAge.geojson'
+      type: 'fill'
+      data-type: 'geojson'
+      layer-type: 'fill'
+      persist: true
+      paint:
+        fill-color:
+          property: 'z-score'  # Using z-score for color ramp
+          stops:
+            - [-4.2860, '#285f82']  # Dark purple
+            - [-1.5500, '#2b83ba']  # Purple
+            - [-0.7970, '#74b6ad']  # Blue-purple
+            - [-0.2610, '#b7e2a8']  # Cyan
+            - [0.2280, '#e7f5b7']   # Light greenish cyan
+            - [0.7640, '#fee8a4']   # Light green
+            - [1.4220, '#fdba6e']   # Yellow-green
+            - [2.3350, '#ed6e43']   # Yellow
+            - [4.7050, '#d7191c']   # Orange
+          default: 'rgba(0, 0, 0, 0)' 
+        fill-opacity: 0.8
+
+- title: Transit Demand (Transit-Dependent Popultaion%) 
+  center: [-74.0060, 40.7128]
+  zoom: 10
+  pitch: 0
+  bearing: 0
+  description: The percentage of transit-dependent commuters is the other demand attributes, capturing populations without access to private vehicles.
+  layers: 
+    - id: 'transit-commuters'
+      url: '/astro-maplibre-template/data/PublicTransitZ.geojson'
+      type: 'fill'
+      data-type: 'geojson'
+      layer-type: 'fill'
+      persist: true
+      paint:
+        fill-color: 
+          property: 'z-score'  
+          stops:
+            - [-2.4740, '#285f82']  # Dark purple
+            - [-1.9740, '#2b83ba']  # Purple
+            - [-1.1420, '#74b6ad']  # Blue-purple
+            - [-0.5310, '#b7e2a8']  # Cyan
+            - [-0.0310, '#e7f5b7']   # Light greenish cyan
+            - [0.4680, '#fee8a4']   # Light green
+            - [0.9680, '#fdba6e']   # Yellow-green
+            - [1.6340, '#ed6e43']   # Yellow
+            - [3.0770, '#d7191c']   # Orange
+          default: 'rgba(0, 0, 0, 0)' 
+        fill-opacity: 0.8
+        
+- title: 
+  center: [-73.9008, 40.8192]
+  zoom: 11.77
+  pitch: 0
+  bearing: 0
+  description: Neighborhoods in the South Bronx and sections of Upper Manhattan typically have lower rates of private vehicle ownership, making residents highly reliant on public transportation. 
+  layers: 
+    - id: 'transit-commuters'
+      url: '/astro-maplibre-template/data/PublicTransitZ.geojson'
+      type: 'fill'
+      data-type: 'geojson'
+      layer-type: 'fill'
+      persist: true
+      paint:
+        fill-color: 
+          property: 'z-score'  
+          stops:
+            - [-2.4740, '#285f82']  # Dark purple
+            - [-1.9740, '#2b83ba']  # Purple
+            - [-1.1420, '#74b6ad']  # Blue-purple
+            - [-0.5310, '#b7e2a8']  # Cyan
+            - [-0.0310, '#e7f5b7']   # Light greenish cyan
+            - [0.4680, '#fee8a4']   # Light green
+            - [0.9680, '#fdba6e']   # Yellow-green
+            - [1.6340, '#ed6e43']   # Yellow
+            - [3.0770, '#d7191c']   # Orange
+          default: 'rgba(0, 0, 0, 0)' 
+        fill-opacity: 0.8
+
+- title: Transit Supply (Inaccessibility)
+  center: [-74.0060, 40.7128]
+  zoom: 10
+  pitch: 0
+  bearing: 0
+  description: Transit supply was assessed through accessibility to subway stations within a 15-minute walking distance, reflecting spatial proximity.
+  layers:
+    - id: 'accessibility-stations'
+      url: '/astro-maplibre-template/data/AccessibilityZ.geojson'
+      type: 'fill'
+      data-type: 'geojson'
+      layer-type: 'fill'
+      persist: true
+      paint:
+        fill-color: 
+          property: 'z-score'  
+          stops:
+            - [-1.06, '#285f82']  # Dark purple
+            - [-0.7030, '#2b83ba']  # Purple
+            - [-0.4350, '#74b6ad']  # Blue-purple
+            - [-0.0990, '#b7e2a8']  # Cyan
+            - [0.3220, '#e7f5b7']   # Light greenish cyan
+            - [0.8460, '#fee8a4']   # Light green
+            - [1.4410, '#fdba6e']   # Yellow-green
+            - [2.0740, '#ed6e43']   # Yellow
+            - [2.5610, '#d7191c']   # Orange
+          default: 'rgba(0, 0, 0, 0)' 
+        fill-opacity: 0.8
 
 
+- title: Transit Supply (Route Count)
+  center: [-74.0060, 40.7128]
+  zoom: 10
+  pitch: 0
+  bearing: 0
+  description: The count of accessible transit routes to each census tract represents service availability.
+  layers:
+    - id: 'accessible-routes'
+      url: '/astro-maplibre-template/data/route_count.geojson'
+      type: 'fill'
+      data-type: 'geojson'
+      layer-type: 'fill'
+      persist: true
+      paint:
+        fill-color: 
+          property: 'z-score'  
+          stops:
+            - [-0.7610, '#d7191c']  # Dark purple
+            - [-0.3610, '#ed6e43']  # Purple
+            - [0.1600, '#fdba6e']  # Blue-purple
+            - [0.8510, '#fee8a4']  # Cyan
+            - [1.3120, '#e7f5b7']   # Light greenish cyan
+            - [1.7720, '#b7e2a8']   # Light green
+            - [2.0020, '#74b6ad']   # Yellow-green
+            - [2.4630, '#2b83ba']   # Yellow
+            - [3.8450, '#285f82']   # Orange
+          default: 'rgba(0, 0, 0, 0)' 
+        fill-opacity: 0.8
 
-- title: London
-  center: [-0.1278, 51.5074]
-  zoom: 8
-  pitch: 30
-  bearing: -10
-  description: You can change the position of the overlay div using the position attribute, and can add images using the media attribute.
-  media: https://img.atlasobscura.com/OGZXBPY6hP2AXBi-M97MjAYHr46wOlG4iPA1pz2owEI/rt:fit/h:390/q:81/sm:1/scp:1/ar:1/aHR0cHM6Ly9hdGxh/cy1kZXYuczMuYW1h/em9uYXdzLmNvbS91/cGxvYWRzL3BsYWNl/X2ltYWdlcy85NTI3/NzEyMWY1NWM5ZWIx/ZDRfMTM3ODE0MjA1/OTNfMjQ0ZmUxZDJj/OV9rLmpwZw.jpg
-  position: right
+- title: Supply-Demand
+  center: [-74.0060, 40.7128]
+  zoom: 10
+  pitch: 0
+  bearing: 0
+  description: Using Z-scores, the attributes were standardized, and manually assigned weights prioritized their relative importance, 0.6 for accessibility and 0.4 for route count in supply, and 0.3 for working-age population and 0.7 for transit-dependent commuters in demand. The indices were normalized, and the final transit gap value was calculated as the difference between normalized supply and demand indices. Areas identified as transit deserts include neighborhoods like Tottenville in Staten Island, Canarsie in southeast Brooklyn, Laurelton in eastern Queens, and Eastchester in the Bronx. These regions are highlighted in red, indicating high transit demand with insufficient supply. Staten Island and eastern Queens face limited subway access, relying heavily on buses or costlier commuter rail options, while southeast Brooklyn and parts of the Bronx have gaps in transit infrastructure or overcrowded services, exacerbating accessibility challenges for residents.
+  layers:
+    - id: 'gap'
+      url: '/astro-maplibre-template/data/gap.geojson'
+      type: 'fill'
+      data-type: 'geojson'
+      layer-type: 'fill'
+      persist: true
+      paint:
+        fill-color: 
+          property: 'gap'  
+          stops:
+            - [-0.6560, '#d7191c']  # Dark purple
+            - [-0.3110, '#ed6e43']  # Purple
+            - [-0.1740, '#fdba6e']  # Blue-purple
+            - [-0.0560, '#fee8a4']  # Cyan
+            - [0.0570, '#e7f5b7']   # Light greenish cyan
+            - [0.1680, '#b7e2a8']   # Light green
+            - [0.2790, '#74b6ad']   # Yellow-green
+            - [0.4020, '#2b83ba']   # Yellow
+            - [0.7560, '#285f82']   # Orange
+          default: 'rgba(0, 0, 0, 0)' 
+        fill-opacity: 0.8
