@@ -29,6 +29,30 @@
       circle-color: '#826260'
       circle-opacity: 0.8
 
+- title: Section Title - Squirrels in Central Park but different
+  center: [-73.96778, 40.78376]
+  zoom: 14
+  pitch: 0
+  bearing: 20
+  description: Now we zoom in. A layer is added from a geojson  Layer paint properties are passed, and layers are set to turn off when you continue scrolling via the `persist:false` attribute.
+  
+  layers:
+  # id of layer
+  - id: 'squirrel-census'
+  # path to dataset 
+  # note anything uploaded in the public/data folder will be uploaded to your site at url/data/file.png
+    url: './data/squirrel20241021.geojson'
+  # type of symbol
+    type: 'circle'
+  # type of symbol
+    data-type: 'geojson'
+    layer-type: 'circle'
+    persist: true
+    paint:
+      circle-radius: 8
+      circle-color: '#000'
+      circle-opacity: 0.8
+
 - title: Polygon Layer
   # center: [-73.96778, 40.78376]
   center: [-74.00739, 40.67930]

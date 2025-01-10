@@ -142,6 +142,9 @@ export function loadMapLayers(
                   layer?.before ?? undefined
                 );
               }
+              if (map.getLayer(layer.id)) {
+                updateLayer(map, layer);
+              }
             });
         } else if (layer["data-type"] === "raster") {
           // Add source if it doesn't exist
@@ -306,6 +309,29 @@ export function loadMapLayers(
         }
       }
     );
+  }
+}
+
+export function updateLayer(
+  map: maplibregl.Map,
+  layer: GeoJSONFeatureLayer | RasterLayer | ImageLayer | VectorTileLayer
+) {
+  if (map && map.getSource(layer.id)) {
+    if ("paint" in layer) {
+      layer.paint
+        ? // @ts-expect-error expect partial paint defs
+          layer.paint.array.forEach((element) => {
+            map.setPaintProperty(layer.id, element.property, element.value);
+          })
+        : null;
+    }
+    if ("visibility" in layer) {
+      map.setLayoutProperty(
+        layer.id,
+        "visibility",
+        layer.visible ? "visible" : "none"
+      );
+    }
   }
 }
 
