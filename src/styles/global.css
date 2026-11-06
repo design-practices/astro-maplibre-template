@@ -1,290 +1,147 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind 4 is configured here, in CSS (there is no tailwind.config file). */
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
-/* Base styles */
-:root {
-  --bg-color: rgba(255, 255, 255, 0.9); /* Light mode */
-  --text-color: #333; /* Darker text for light mode */
+/* `dark:` classes apply when <html> has the "dark" class (set by the theme
+   buttons in the footer, see src/components/Head.astro). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Lora", ui-serif, Georgia, serif;
 }
 
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-color: rgba(40, 40, 40, 0.9); /* Dark background */
-    --text-color: #eee; /* Lighter text for dark mode */
+:root {
+  /* Height of the fixed site header. Full-page maps and stories start below it. */
+  --header-h: 4rem;
+}
+
+@layer base {
+  html {
+    overflow-y: scroll;
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  html,
+  body {
+    @apply min-h-full;
+  }
+
+  body {
+    @apply font-sans antialiased;
+    @apply flex flex-col;
+    @apply bg-stone-100 dark:bg-stone-900;
+    @apply text-black/50 dark:text-white/75;
+  }
+
+  header {
+    @apply fixed top-0 left-0 right-0 z-50 flex items-center;
+    height: var(--header-h);
+    @apply bg-stone-100/75 dark:bg-stone-900/25;
+    @apply backdrop-blur-sm saturate-200;
+  }
+
+  main {
+    @apply flex-1 py-32;
+  }
+
+  /* Full-page maps and stories: no padding, start right under the header. */
+  body.bleed main {
+    @apply pb-0;
+    padding-top: var(--header-h);
+  }
+
+  footer {
+    @apply py-5 text-sm;
+  }
+
+  a {
+    color: rgb(236, 55, 19);
+  }
+
+  /* Page headings (not the headings inside map popups, legends or chapter cards). */
+  main :is(h1, h2, h3, h4, h5):not(ml-map *, ml-scrollytelling *) {
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+    line-height: initial;
+    font-family: var(--font-sans);
+  }
+
+  main h1:not(ml-map *, ml-scrollytelling *) {
+    font-size: 2em;
+    font-weight: 700;
+  }
+
+  main h2:not(ml-map *, ml-scrollytelling *) {
+    font-size: 1.75em;
+    font-weight: 500;
+  }
+
+  main h3:not(ml-map *, ml-scrollytelling *) {
+    font-size: 1.5em;
+    font-weight: 400;
+  }
+
+  main :is(h4, h5):not(ml-map *, ml-scrollytelling *) {
+    font-weight: 700;
   }
 }
 
-html {
-  overflow-y: scroll;
-  color-scheme: light;
-}
+@layer components {
+  /* Prose styling for MDX pages: wrap the page's text in <article>. */
+  article {
+    @apply max-w-full prose dark:prose-invert prose-img:mx-auto prose-img:my-auto;
+    @apply prose-headings:font-semibold prose-p:font-serif;
+    @apply prose-headings:text-black dark:prose-headings:text-white;
+    @apply prose-code:before:content-none prose-code:after:content-none;
+  }
 
-html.dark {
-  color-scheme: dark;
-}
-
-html,
-body {
-  @apply size-full;
-}
-
-body {
-  @apply font-sans antialiased;
-  @apply flex flex-col;
-  @apply bg-stone-100 dark:bg-stone-900;
-  @apply text-black/50 dark:text-white/75;
-}
-
-header {
-  @apply fixed top-0 left-0 right-0 z-50 py-5;
-  @apply bg-stone-100/75 dark:bg-stone-900/25;
-  @apply backdrop-blur-sm saturate-200;
-}
-
-main {
-  @apply flex-1 py-32;
-}
-
-footer {
-  @apply py-5 text-sm;
-}
-
-article {
-  @apply max-w-full prose dark:prose-invert prose-img:mx-auto prose-img:my-auto;
-  @apply prose-headings:font-semibold prose-p:font-serif;
-  @apply prose-headings:text-black prose-headings:dark:text-white;
-}
-
-@layer utilities {
   article a {
-    @apply font-sans text-current underline underline-offset-2;
+    @apply font-sans underline underline-offset-2;
     @apply decoration-black/15 dark:decoration-white/30;
     @apply transition-colors duration-300 ease-in-out;
   }
+
   article a:hover {
     @apply text-black dark:text-white;
     @apply decoration-black/25 dark:decoration-white/50;
   }
+
+  /* A map in an article: rounded corners and space around it. */
+  .map-frame {
+    @apply my-8 overflow-hidden rounded-lg border border-black/10 dark:border-white/15;
+  }
+
+  .animate {
+    @apply opacity-0 translate-y-3;
+    @apply transition-all duration-700 ease-out;
+  }
+
+  .animate.show {
+    @apply opacity-100 translate-y-0;
+  }
+
+  html #back-to-top {
+    @apply opacity-0 pointer-events-none;
+  }
+
+  html.scrolled #back-to-top {
+    @apply opacity-100 pointer-events-auto;
+  }
 }
 
-.animate {
-  @apply opacity-0 translate-y-3;
-  @apply transition-all duration-700 ease-out;
-}
-
-.animate.show {
-  @apply opacity-100 translate-y-0;
-}
-
-html #back-to-top {
-  @apply opacity-0 pointer-events-none;
-}
-
-html.scrolled #back-to-top {
-  @apply opacity-100 pointer-events-auto;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5 {
-	margin-top: 1.5em;
-	margin-bottom: 1.5em;
-	line-height: initial;
-	font-family: "Inter", normal;
-}
-
-h1 {
-	font-size: 2em;
-	font-weight: 700;
-}
-
-h2 {
-	font-size: 1.75em;
-	font-weight: 500;
-}
-
-h3 {
-	font-size: 1.5em;
-	font-weight: 400;
-}
-
-h4 {
-	/* font-size: 1.5em; */
-	font-weight: bold;
-}
-
-h5 {
-	/* font-size: 1.5em; */
-	font-weight: 700;
-}
-
-.maplibre-inline {
-  margin-bottom: 1rem;
-}
-
-a {
-  color: rgb(236, 55, 19);
-}
-
-.scrollytelling-container {
-  position: relative;
-  width: 100vw;
-  height: 100vh; /* Full viewport height */
-}
-
-main {
-  position: relative;
-  z-index: 2; /* Above the map */
-  width: 100%;
-  height: auto;
-  overflow-y: auto;
-  scroll-behavior: smooth; /* Optional: smooth scrolling between sections */
-}
-
-/* Each section represents a new scrolling block */
-section {
-  width: 50%;
-  min-height: 150vh; /* Each section takes up at least the full viewport height */
-  border-bottom: 1px solid #ddd; /* Optional separator between sections */
-  box-sizing: border-box;
-  padding-bottom: 50vh;
-  padding-top: 20vh;
-  padding-left: 5vw;
-  padding-right: 5vw;
-}
-
-.map-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh; /* Full viewport height */
-  z-index: 1; /* Behind the scrolling content */
-}
-
+/* Maps: popups use dark text even in dark mode (their background is white). */
 .maplibregl-popup-content {
-  color: var(--text-color); 
+  color: #333;
 }
 
-#maplibre-scrollytelling-map {
-  position:fixed 
-}
-
-.hidden {
-  visibility: hidden;
-}
-.centered {
-  width: 50vw;
-  margin: 0 auto;
-}
-.left {
-  width: 33vw;
-  margin-left: 5vw;
-}
-.right {
-  width: 43vw;
-  margin-left: 52vw;
-}
-.full {
-  width: 100%;
-  margin: auto;
-}
-
-.step {
-  padding-bottom: 50vh;
-  /* margin-bottom: 10vh; */
-  opacity: 0.25;
-}
-.step.active {
-  opacity: 0.9;
-}
-
-.step div {
-  padding:  25px 50px;
-  line-height: 25px;
-  font-size: 13px;
-}
-
-.step-content { 
-  width: 100%;
-  padding: 20px;
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-
-.menu {
-  background: #fff;
-  position: absolute;
-  z-index: 1;
-  top: 10px;
-  right: 10px;
-  border-radius: 3px;
-  width: 120px;
-  border: 1px solid rgba(0, 0, 0, 0.4);
-}
-
-.menu a {
-  font-size: 13px;
-  color: #404040;
-  display: block;
-  margin: 0;
-  padding: 0;
-  padding: 10px;
-  text-decoration: none;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
-  text-align: center;
-}
-
-.menu a:last-child {
-  border: none;
-}
-
-.menu a:hover {
-  background-color: #f8f8f8;
-  color: #404040;
-}
-
-.menu a.active {
-  background-color: black;
-  color: #ffffff;
-}
-
-.menu a.active:hover {
-  background: rgb(236, 55, 19);
-}
-
-.map-overlay {
-  background-color: #fff;
-  border-radius: 3px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  font:
-      12px/20px 'Helvetica Neue',
-      Arial,
-      Helvetica,
-      sans-serif;
-  padding: 10px;
-  position: absolute;
-  left: 10px;
-  z-index: 1;
-  color: black;
-  bottom: 10px;
-  left: 10px;
-}
-
-.legend-color {
-  width: 12px;
-  height: 12px;
-  display: inline-block;
-  margin-right: 8px;
-}
-
-.inline-map {
-  position: relative;
+/* The story's map sticks below the fixed site header. (`html` in front makes
+   this win over the story's own stylesheet, which the page loads after this one.) */
+html ml-scrollytelling {
+  --ml-scrolly-map-top: var(--header-h);
+  --ml-scrolly-map-height: calc(100vh - var(--header-h));
 }

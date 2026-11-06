@@ -2,16 +2,27 @@
 import Container from "@components/Container.astro";
 import Link from "@components/Link.astro";
 import { SITE } from "@consts";
+import { url } from "@lib/utils";
+
+// The links in the header. `url()` adds the site's base path (see astro.config.mjs).
+const nav = [
+  { href: url("inline_maps"), label: "Inline maps" },
+  { href: url("full_page_map"), label: "Full page map" },
+  { href: url("scrollytelling"), label: "Scrollytelling" },
+];
 ---
 
 <header>
   <Container>
-    <div class="flex flex-wrap gap-y-2 justify-between">
-      <Link href="/astro-maplibre-template" underline={false}>
+    <div class="flex flex-wrap gap-x-6 gap-y-2 justify-between items-center">
+      <Link href={url()} underline={false}>
         <div class="font-semibold">
           {SITE.NAME}
         </div>
-      </Link>      
+      </Link>
+      <nav class="hidden sm:flex gap-4 text-sm">
+        {nav.map((item) => <Link href={item.href} underline={false}>{item.label}</Link>)}
+      </nav>
     </div>
   </Container>
 </header>
