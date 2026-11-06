@@ -1,0 +1,125 @@
+# yaml-language-server: $schema=https://docs.maplibre-yaml.org/schema/latest/scrollytelling.schema.json
+#
+# The story on src/pages/scrollytelling.mdx. The map stays on screen while the
+# chapters scroll over it; each chapter moves the camera and can show or hide
+# layers. Chapter text (`description`) is HTML, not Markdown.
+type: scrollytelling
+id: nyc-story
+theme: light           # chapter cards: light or dark
+showMarkers: true      # a dot per chapter at the right edge; click one to jump
+markerColor: "#ec3713"
+
+# The map when the page opens.
+config:
+  mapStyle: "https://tiles.openfreemap.org/styles/positron"
+  center: [-74.0060, 40.7128]
+  zoom: 10
+  interactive: false   # scrolling moves the story, not the map
+
+# Every layer the story uses. A layer that a chapter reveals later starts
+# hidden with `layout: { visibility: none }`.
+layers:
+  - id: squirrels
+    type: circle
+    source:
+      type: geojson
+      url: "/data/squirrel20241021.geojson"
+    layout:
+      visibility: none
+    paint:
+      circle-radius: 4
+      circle-color: "#826260"
+      circle-opacity: 0.8
+
+  - id: central-park
+    type: fill
+    source:
+      type: geojson
+      data:
+        type: Feature
+        properties: { name: Central Park }
+        geometry:
+          type: Polygon
+          coordinates:
+            - - [-73.9730, 40.7644]
+              - [-73.9819, 40.7681]
+              - [-73.9580, 40.8006]
+              - [-73.9496, 40.7968]
+              - [-73.9730, 40.7644]
+    layout:
+      visibility: none
+    paint:
+      fill-color: "#4caf50"
+      fill-opacity: 0.35
+
+chapters:
+  - id: intro
+    title: Introduction
+    description: >-
+      <p>Welcome to the scrollytelling example. Each chapter sets the camera
+      with <code>center</code>, <code>zoom</code>, <code>pitch</code> and
+      <code>bearing</code>. Scroll down.</p>
+    center: [-74.0060, 40.7128]
+    zoom: 10
+    alignment: center
+
+  - id: squirrels
+    title: Squirrels in Central Park
+    description: >-
+      <p>Now we zoom in, and this chapter turns on a layer loaded from a GeoJSON
+      file in <code>public/data/</code> with
+      <code>layers: { show: [squirrels] }</code>.</p>
+    center: [-73.96778, 40.78376]
+    zoom: 14
+    bearing: 20
+    alignment: left
+    layers:
+      show: [squirrels]
+
+  - id: park
+    title: A polygon layer
+    description: >-
+      <p>This chapter hides the squirrels again and shows a polygon written
+      straight into the YAML. The camera tilts (<code>pitch: 45</code>) and
+      turns to line up with the park, and <code>animation: easeTo</code> moves
+      it without the zoom-out arc of the default <code>flyTo</code>.</p>
+    center: [-73.9654, 40.7829]
+    zoom: 13
+    pitch: 45
+    bearing: -61
+    animation: easeTo
+    alignment: right
+    layers:
+      show: [central-park]
+      hide: [squirrels]
+
+  - id: mississippi
+    title: Pictures in a chapter
+    description: >-
+      <p>A chapter can show an image above its text with <code>image:</code>,
+      a file in <code>public/img/</code>. This is Harold Fisk's 1944 map of the
+      Mississippi's ancient courses, near where the map has flown to.</p>
+    image: "/img/fisk02.jpg"
+    center: [-89.53, 36.59]
+    zoom: 9
+    pitch: 30
+    bearing: -10
+    alignment: left
+    layers:
+      hide: [central-park]
+
+  - id: outro
+    title: Back to New York
+    description: >-
+      <p><code>rotateAnimation: true</code> turns the camera slowly while this
+      chapter is on screen. Edit <code>src/stories/nyc.yaml</code> to write
+      your own story.</p>
+    center: [-73.99, 40.73]
+    zoom: 11
+    pitch: 50
+    rotateAnimation: true
+    alignment: full
+
+footer: >-
+  <p>Data: 2018 Central Park Squirrel Census (NYC Open Data). Basemap:
+  OpenFreeMap, © OpenStreetMap contributors.</p>

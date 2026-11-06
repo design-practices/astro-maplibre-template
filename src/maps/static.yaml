@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=https://docs.maplibre-yaml.org/schema/latest/map.schema.json
+#
+# A map that doesn't move: `interactive: false` turns off dragging and zooming.
+# Useful as a locator map next to text.
+# Shown on src/pages/inline_maps.mdx (the two-column example).
+type: map
+id: locator
+config:
+  mapStyle: "https://tiles.openfreemap.org/styles/positron"
+  center: [-73.9654, 40.7829]
+  zoom: 11
+  interactive: false
+
+layers:
+  - id: central-park-dot
+    type: circle
+    source:
+      type: geojson
+      data:
+        type: Feature
+        properties: { name: Central Park }
+        geometry: { type: Point, coordinates: [-73.9654, 40.7829] }
+    paint:
+      circle-radius: 9
+      circle-color: "#ec3713"
+      circle-stroke-width: 2
+      circle-stroke-color: "#ffffff"

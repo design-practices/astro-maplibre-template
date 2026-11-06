@@ -1,73 +1,110 @@
 import Container from "@components/Container.astro";
 import PageLayout from "@layouts/PageLayout.astro";
 import { SITE } from "@consts";
-import { default as MapLibre } from "@components/MapLibre.astro";
+import { Map, loadMapConfig } from "@maplibre-yaml/astro";
+import { Image } from "astro:assets";
+import fiskMap from "../assets/img/fisk02.jpg";
 
-/* import all images you would like to use in line here */
+{/*
+  Each map is a YAML file in src/maps/. loadMapConfig reads and checks it
+  when the site builds: a mistake in the YAML stops `npm run build` (and shows
+  in `npm run dev`) with the file, line and column, instead of reaching your
+  site. The path starts at the project folder.
+*/}
+export const squirrels = await loadMapConfig("./src/maps/squirrels.yaml");
+export const bikeLanes = await loadMapConfig("./src/maps/bike-lanes.yaml");
+export const layerToggles = await loadMapConfig("./src/maps/layers.yaml");
+export const locator = await loadMapConfig("./src/maps/static.yaml");
 
-import fiskImg from "../assets/img/fisk02.jpg"
+<PageLayout title="Inline maps" description={SITE.DESCRIPTION}>
+<Container>
+<article>
 
+# Inline maps
 
+This page is `src/pages/inline_maps.mdx`. It is written in
+[MDX](https://mdxjs.com/): Markdown for the text, plus components such as
+`<Map>` wherever you want a map. Each map's layers, colours and popups live in
+a YAML file in `src/maps/`.
 
-<PageLayout title={SITE.title} description={SITE.description}>
+## Points from a data file, with a popup and a legend
 
-    <Container>
-    # My Project
-    
-    An example of an interactive map
-    <MapLibre
-        container="maplibremap"
-        latitude={40.8075803}
-        longitude={-73.9604192}
-        zoom={12}
-        interactive="true"
-        mapstyle="https://api.maptiler.com/maps/dataviz/style.json?key=WlatIY6MghFCwInJhBkl"
-        containerstyle="width: 100%; height: 50vh"
-        layers={[
-            { url:'https://data.cityofnewyork.us/resource/43nn-pn8j.geojson?cuisine_description=Pizza&$limit=10000', 'data-type':'geojson','layer-type':'circle', id:'pizza', paint:{'circle-color':'#ff0000','circle-radius':5},
-            mouseEvent: [
-                {
-                    type: "click", // same concept should work for mousemove
-                    content: [
-                        { "h2": [{'str':"Feature Info"}] }, // 
-                        { "p": [{'str':"Description of feature"}] },
-                        { "p": [{'str':'NTA Attribute: '}, {'property': 'dba', 'else':'N/A'}, {'str': " in CD "}, {'property': 'nta', 'else':'N/A'} ]}, 
-                        { "a": [{ "href": "https://example.com", "text": "Learn more about this feature" }] },
-                        { "img": [{ "src": "https://www.seriouseats.com/thmb/-_mziT2tl0F63I4kfji4S6bE-cA=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/__opt__aboutcom__coeus__resources__content_migration__serious_eats__seriouseats.com__2018__10__20181015-state-of-slice-delmar-clay-williams-2de043fa5a0d4475b6c567e4a974b13b.jpg", "alt": "Feature image" }] }
-                    ]
-                }
-                ]
-            },
-            { url:'https://data.cityofnewyork.us/resource/mzxg-pwib.geojson?$limit=10000', 'data-type':'geojson', 'layer-type':'line', id:'bikes', paint:{'line-color':'#000000', 'line-width':3}},
-        ]}
-    />
+Every sighting from the 2018 Central Park Squirrel Census, coloured by fur
+colour. **Click a squirrel** to see its details. The data is
+`public/data/squirrel20241021.geojson`; the map is `src/maps/squirrels.yaml`.
 
-    ... and a static map. Note that the container ID must be unique.
+<Map config={squirrels} height="60vh" class="map-frame not-prose" />
 
-    <MapLibre
-        container="maplibremap2"
-        latitude={32.795595}
-        longitude={-117.259191}
-        zoom={3}
-        interactive="false"
-        mapstyle="https://demotiles.maplibre.org/style.json"
-        containerstyle="width: 100%; height: 256px"
-    />
+## Lines from a web address
 
+Manhattan's bike lanes, loaded straight from
+[NYC Open Data](https://opendata.cityofnewyork.us/) each time the page opens
+(`src/maps/bike-lanes.yaml`). Click a lane for its street name.
 
-    ... and a static map from an image you have composed 
+<Map config={bikeLanes} height="50vh" class="map-frame not-prose" />
 
-    /* To add static images from a jpg or png file use the syntax below*/
-    /* you must include the reference name that corresponds to the file path you have listed above */
-    <img src={fiskImg.src} alt="image description" />
+## Turning layers on and off
 
-    ## A subsection 
+Give a layer a `label:` and it gets a checkbox in the panel at the top right.
+The bike lanes start switched off (`visible: false`); tick them
+(`src/maps/layers.yaml`).
 
-    You can go into more detail here.
+<Map config={layerToggles} height="50vh" class="map-frame not-prose" />
 
-    ### A further subsection
-    And even more detail here.
+## A map beside text
 
-    </Container>
+Put a map and text side by side with two columns. Below a medium-sized screen
+the columns stack, map first. This map doesn't move: `interactive: false` in
+`src/maps/static.yaml`.
 
+<div class="not-prose grid gap-6 md:grid-cols-2 items-center my-8">
+  <Map config={locator} height="320px" class="map-frame my-0" />
+  <div class="prose dark:prose-invert prose-p:font-serif">
+    <h3>Central Park</h3>
+    <p>
+      843 acres in the middle of Manhattan, and home to a few thousand eastern
+      gray squirrels. Write anything here: paragraphs, <strong>bold</strong>,
+      lists, links such as
+      <a href="https://www.centralparknyc.org/">the Central Park Conservancy</a>.
+    </p>
+  </div>
+</div>
+
+## Images
+
+To show an image, put the file in `src/assets/img/`, import it at the top of
+the page (`import fiskMap from "../assets/img/fisk02.jpg"`) and show it with
+`<Image>`. Astro resizes it to `width` when the site builds: this scan is 4 MB
+on disk and much smaller on the page.
+
+<Image
+  src={fiskMap}
+  width={600}
+  alt="Harold Fisk's 1944 map of the ancient courses of the Mississippi River"
+/>
+
+A plain Markdown image, `![description](../assets/img/fisk02.jpg)`, works too,
+but keeps the image at its full size.
+
+## Embeds
+
+HTML works too, for example an `<iframe>` with a video or another site's map:
+
+<iframe
+  title="OpenStreetMap: Central Park"
+  src="https://www.openstreetmap.org/export/embed.html?bbox=-73.9819,40.7644,-73.9496,40.8006&layer=mapnik"
+  style="width: 100%; height: 300px; border: 0;"
+  loading="lazy"
+></iframe>
+
+## A subsection
+
+You can go into more detail here.
+
+### A further subsection
+
+And even more detail here.
+
+</article>
+</Container>
 </PageLayout>
