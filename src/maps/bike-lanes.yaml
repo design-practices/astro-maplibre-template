@@ -1,8 +1,7 @@
 # yaml-language-server: $schema=https://docs.maplibre-yaml.org/schema/latest/map.schema.json
 #
-# A line layer loaded straight from NYC Open Data (Manhattan's bike lanes).
-# The url asks the city's API for only the columns the map uses, so the
-# download stays small.
+# A line layer from a GeoJSON file: Manhattan's bike lanes, a snapshot from
+# NYC Open Data saved in public/data/manhattan-bike-lanes.geojson.
 # Shown on src/pages/inline_maps.mdx.
 type: map
 id: bike-lanes
