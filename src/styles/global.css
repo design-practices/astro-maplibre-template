@@ -139,9 +139,8 @@
   color: #333;
 }
 
-/* The story's map sticks below the fixed site header. (`html` in front makes
-   this win over the story's own stylesheet, which the page loads after this one.) */
-html ml-scrollytelling {
+/* The story's map sticks below the fixed site header. */
+ml-scrollytelling {
   --ml-scrolly-map-top: var(--header-h);
   --ml-scrolly-map-height: calc(100vh - var(--header-h));
 }
