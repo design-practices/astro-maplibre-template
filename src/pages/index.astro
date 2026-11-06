@@ -15,37 +15,22 @@ import { url } from "@lib/utils";
     <div class="space-y-8">
       <h2 class="font-semibold text-black dark:text-white">About</h2>
       <p>
-        This is a starting point for a website that tells a story with maps.
-        It is built with <a href="https://astro.build/">Astro</a>,
-        <a href="https://tailwindcss.com/">Tailwind CSS</a> and
-        <a href="https://docs.maplibre-yaml.org/">maplibre-yaml</a>, which turns
-        a YAML file into a <a href="https://maplibre.org/">MapLibre</a> map.
-        Every map on this site is a file in <b>src/maps/</b> or
-        <b>src/stories/</b>: edit the YAML, not code.
+        This is a starting point for a website that tells a story with maps. It is built with <a href="https://astro.build/">Astro</a>, <a href="https://tailwindcss.com/">Tailwind CSS</a> and <a href="https://docs.maplibre-yaml.org/">maplibre-yaml</a>, which turns a YAML file into a <a href="https://maplibre.org/">MapLibre</a> map.
+        Every map on this site is a file in <b>src/maps/</b> or <b>src/stories/</b>: edit the YAML, not code.
       </p>
       <ul class="list-disc pl-6 space-y-4">
         <li>
-          <a href={url("inline_maps")}>Inline maps</a>
-          (<b>src/pages/inline_maps.mdx</b>): maps placed in a page between
-          text and images, with popups, a legend, layer toggles, and a map
-          beside text in two columns.
+          <a href={url("inline_maps")}>Inline maps</a> (<b>src/pages/inline_maps.mdx</b>): maps placed in a page between text and images, with popups, a legend, layer toggles, and a map beside text in two columns.
         </li>
         <li>
-          <a href={url("full_page_map")}>Full page map</a>
-          (<b>src/pages/full_page_map.mdx</b>): one map that fills the window,
-          with zoom buttons, a legend and a layer panel.
+          <a href={url("full_page_map")}>Full page map</a> (<b>src/pages/full_page_map.mdx</b>): one map that fills the window, with zoom buttons, a legend and a layer panel.
         </li>
         <li>
-          <a href={url("scrollytelling")}>Scrollytelling</a>
-          (<b>src/pages/scrollytelling.mdx</b> and
-          <b>src/stories/nyc.yaml</b>): a story map whose chapters move the
-          camera and show and hide layers as you scroll.
+          <a href={url("scrollytelling")}>Scrollytelling</a> (<b>src/pages/scrollytelling.mdx</b> and <b>src/stories/nyc.yaml</b>): a story map whose chapters move the camera and show and hide layers as you scroll.
         </li>
       </ul>
       <p>
-        To find the <code>center</code> and <code>zoom</code> for a map, move
-        around <a href="https://labs.mapbox.com/location-helper/">this location
-        helper</a> and copy the numbers.
+        To find the <code>center</code> and <code>zoom</code> for a map, move around <a href="https://labs.mapbox.com/location-helper/">this location helper</a> and copy the numbers.
       </p>
     </div>
   </Container>
