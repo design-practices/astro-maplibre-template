@@ -18,7 +18,7 @@ layers:
     toggleable: false # no on/off checkbox for the only layer
     source:
       type: geojson
-      url: "https://data.cityofnewyork.us/resource/mzxg-pwib.geojson?$select=the_geom,street,ft_facilit&$where=boro='1'&$limit=10000"
+      url: "/data/manhattan-bike-lanes.geojson"
     classify:
       field: ft_facilit
       categories:

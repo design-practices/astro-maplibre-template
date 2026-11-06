@@ -152,7 +152,7 @@ above. Any other MapLibre style URL works too.
 | :--- | :--- | :--- |
 | A popup when a point is clicked | `src/maps/squirrels.yaml` | `interactive: { click: { popup: … } }` |
 | Colours by category, with a legend | `src/maps/squirrels.yaml`, `bike-lanes.yaml` | `classify: { field, categories }` |
-| Data from a web address | `src/maps/bike-lanes.yaml` | `source: { type: geojson, url: "https://…" }` |
+| Data from a file in `public/data/` | `src/maps/bike-lanes.yaml` | `source: { type: geojson, url: "/data/….geojson" }` |
 | Data written in the YAML | `src/maps/layers.yaml` (the park outline) | `source: { type: geojson, data: … }` |
 | Checkboxes to turn layers on and off | `src/maps/layers.yaml`, `full-page.yaml` | `label:` on a layer; `visible: false` to start it off |
 | A legend entry for a plain layer | `src/maps/layers.yaml` | `legend: { label, color, shape }` |
@@ -216,9 +216,12 @@ from QGIS, [geojson.io](https://geojson.io/) or most data portals. Keep files
 small (a few MB at most); for bigger data see
 [Large data](https://docs.maplibre-yaml.org/guides/cloud-native-data/).
 
-A `url:` can also be a web address, such as an open-data API
-(`src/maps/bike-lanes.yaml`). That data is fetched each time someone opens the
-page, so the site breaks if that service goes down or changes.
+A `url:` can also be a web address, such as an open-data API. That data is
+fetched each time someone opens the page, so the site breaks if that service
+goes down or changes. Saving a copy in `public/data/` avoids that: the bike lanes
+in `src/maps/bike-lanes.yaml` are a snapshot of
+[NYC Open Data](https://data.cityofnewyork.us/Transportation/New-York-City-Bike-Routes/mzxg-pwib)
+saved as `public/data/manhattan-bike-lanes.geojson`.
 
 ## Text, images and maps together (MDX)
 

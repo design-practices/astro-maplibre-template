@@ -14,25 +14,29 @@ legend:
   position: bottom-left
 
 layers:
-  # Raster tiles: an image for each tile, here OpenStreetMap's own map.
+  # Vector tiles from OpenFreeMap (free, no key): the same tiles the basemap
+  # draws, here only their building shapes, in a colour of your own.
   # Starts switched off; tick it in the layer panel.
-  - id: osm-raster
-    type: raster
-    label: OpenStreetMap tiles
+  - id: buildings
+    type: fill
+    label: Buildings
     visible: false
     legend: false
     source:
-      type: raster
-      tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"]
-      tileSize: 256
-      attribution: "© OpenStreetMap contributors"
+      type: vector
+      url: "https://tiles.openfreemap.org/planet"
+    source-layer: building
+    minzoom: 13
+    paint:
+      fill-color: "#b2182b"
+      fill-opacity: 0.35
 
   - id: bike-lanes
     type: line
     label: Bike lanes
     source:
       type: geojson
-      url: "https://data.cityofnewyork.us/resource/mzxg-pwib.geojson?$select=the_geom,street,ft_facilit&$where=boro='1'&$limit=10000"
+      url: "/data/manhattan-bike-lanes.geojson"
     paint:
       line-color: "#2166ac"
       line-width: 2

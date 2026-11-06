@@ -35,11 +35,12 @@ colour. **Click a squirrel** to see its details. The data is
 
 <Map config={squirrels} height="60vh" class="map-frame not-prose" />
 
-## Lines from a web address
+## Lines from a data file
 
-Manhattan's bike lanes, loaded straight from
-[NYC Open Data](https://opendata.cityofnewyork.us/) each time the page opens
-(`src/maps/bike-lanes.yaml`). Click a lane for its street name.
+Manhattan's bike lanes, a snapshot from
+[NYC Open Data](https://opendata.cityofnewyork.us/) saved in
+`public/data/manhattan-bike-lanes.geojson` (`src/maps/bike-lanes.yaml`).
+Click a lane for its street name.
 
 <Map config={bikeLanes} height="50vh" class="map-frame not-prose" />
 
