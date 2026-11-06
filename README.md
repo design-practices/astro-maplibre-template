@@ -11,7 +11,7 @@ a [MapLibre](https://maplibre.org/) map. Every map on the site is a YAML file
 you edit; you don't need to write JavaScript.
 
 > **Using the old version?** Version 1 (custom map components, `_*.yaml` files
-> in `src/pages/`) is kept at the [`v1` tag](../../tree/v1). Version 2 is not a
+> in `src/pages/`) is kept at the [`v1.0` tag](../../tree/v1.0). Version 2 is not a
 > drop-in upgrade: the YAML format is different (see
 > [How v1 maps to v2](#coming-from-version-1)).
 
