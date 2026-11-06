@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=https://docs.maplibre-yaml.org/schema/latest/map.schema.json
+#
+# The map on src/pages/full_page_map.mdx: it fills the window under the site
+# header, with zoom and reset buttons, a legend and a layer panel.
+type: map
+id: full-page
+config:
+  mapStyle: "https://tiles.openfreemap.org/styles/positron"
+  center: [-73.9654, 40.7829]
+  zoom: 12.5
+
+# Where the legend sits: top-left (default), top-right, bottom-left, bottom-right.
+legend:
+  position: bottom-left
+
+layers:
+  # Vector tiles from OpenFreeMap (free, no key): the same tiles the basemap
+  # draws, here only their building shapes, in a colour of your own.
+  # Starts switched off; tick it in the layer panel.
+  - id: buildings
+    type: fill
+    label: Buildings
+    visible: false
+    legend: false
+    source:
+      type: vector
+      url: "https://tiles.openfreemap.org/planet"
+    source-layer: building
+    minzoom: 13
+    paint:
+      fill-color: "#b2182b"
+      fill-opacity: 0.35
+
+  - id: bike-lanes
+    type: line
+    label: Bike lanes
+    source:
+      type: geojson
+      url: "/data/manhattan-bike-lanes.geojson"
+    paint:
+      line-color: "#2166ac"
+      line-width: 2
+    legend: { label: Bike lanes, color: "#2166ac", shape: line }
+    interactive:
+      hover:
+        cursor: pointer
+        popup:
+          - strong:
+              - property: street
+
+  - id: squirrels
+    type: circle
+    label: Squirrels by fur colour
+    source:
+      type: geojson
+      url: "/data/squirrel20241021.geojson"
+    classify:
+      field: primary_fur_color
+      categories:
+        Gray: "#7a7a7a"
+        Cinnamon: "#c0642f"
+        Black: "#1f1f1f"
+      other: "#d4c9a8"
+    paint:
+      circle-radius: 4
+      circle-stroke-width: 1
+      circle-stroke-color: "#ffffff"
+    interactive:
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - str: "Squirrel "
+              - property: unique_squirrel_id
+          - p:
+              - str: "Fur: "
+              - property: primary_fur_color
+                else: "not recorded"

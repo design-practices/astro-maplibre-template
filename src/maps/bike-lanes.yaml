@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=https://docs.maplibre-yaml.org/schema/latest/map.schema.json
+#
+# A line layer from a GeoJSON file: Manhattan's bike lanes, a snapshot from
+# NYC Open Data saved in public/data/manhattan-bike-lanes.geojson.
+# Shown on src/pages/inline_maps.mdx.
+type: map
+id: bike-lanes
+config:
+  mapStyle: "https://tiles.openfreemap.org/styles/positron"
+  center: [-73.97, 40.78]
+  zoom: 11.5
+
+layers:
+  - id: bike-lanes
+    type: line
+    label: Bike lanes
+    toggleable: false # no on/off checkbox for the only layer
+    source:
+      type: geojson
+      url: "/data/manhattan-bike-lanes.geojson"
+    classify:
+      field: ft_facilit
+      categories:
+        Protected: "#1b7837"
+        Conventional: "#2166ac"
+        Shared: "#e08214"
+      other: "#9e9e9e"
+    paint:
+      line-width: 2.5
+    interactive:
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - property: street
+          - p:
+              - property: ft_facilit
+                else: "Other"
+              - str: " lane"

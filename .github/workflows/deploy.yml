@@ -1,14 +1,18 @@
+# Builds the site and publishes it on GitHub Pages every time you push to main.
+# One-time setup on GitHub: Settings → Pages → Build and deployment →
+# Source: "GitHub Actions". Also set `site` and `base` in astro.config.mjs.
+#
+# The build runs `npm run build`, which checks the code and every map and story
+# YAML file first: if one has a mistake, this job fails (the log names the file,
+# line and column) and the published site stays as it was.
 name: Deploy to GitHub Pages
 
 on:
-  # Trigger the workflow every time you push to the `main` branch
-  # Using a different branch name? Replace `main` with your branch’s name
   push:
-    branches: [ main ]
-  # Allows you to run this workflow manually from the Actions tab on GitHub.
+    branches: [main]
+  # Lets you run it by hand from the Actions tab.
   workflow_dispatch:
 
-# Allow this job to clone the repo and create a page deployment
 permissions:
   contents: read
   pages: write
@@ -18,14 +22,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout your repository using git
-        uses: actions/checkout@v4
-      - name: Install, build, and upload your site
-        uses: withastro/action@v3
-        # with:
-          # path: . # The root location of your Astro project inside the repository. (optional)
-          # node-version: 20 # The specific version of Node that should be used to build your site. Defaults to 20. (optional)
-          # package-manager: pnpm@latest # The Node package manager that should be used to install dependencies and build your site. Automatically detected based on your lockfile. (optional)
+      - name: Check out the repository
+        uses: actions/checkout@v7
+      - name: Install, build, and upload the site
+        uses: withastro/action@v6
+        # Uses Node 24 (Astro 7 needs 22.23.4 or later) and npm, from package-lock.json.
 
   deploy:
     needs: build
@@ -36,4 +37,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

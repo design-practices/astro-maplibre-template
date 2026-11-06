@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=https://docs.maplibre-yaml.org/schema/latest/map.schema.json
+#
+# A point layer from a GeoJSON file, coloured by a property, with a legend and
+# a popup when you click a point.
+# Shown on src/pages/inline_maps.mdx.
+type: map
+id: squirrels
+
+# The map when the page opens.
+config:
+  # The basemap. Any MapLibre style URL works; OpenFreeMap needs no API key.
+  # Other OpenFreeMap styles: liberty, bright, dark, fiord.
+  mapStyle: "https://tiles.openfreemap.org/styles/positron"
+  center: [-73.9654, 40.7829] # [longitude, latitude]
+  zoom: 13.5
+
+layers:
+  - id: squirrels
+    type: circle
+    # Heading for this layer in the legend.
+    label: Squirrels by fur colour
+    # A label also adds an on/off checkbox; this map has one layer, so skip it.
+    toggleable: false
+    source:
+      type: geojson
+      # A file in public/data/ is loaded as /data/<file name>.
+      url: "/data/squirrel20241021.geojson"
+    # Colour each point by its primary_fur_color property; the legend is
+    # built from this block.
+    classify:
+      field: primary_fur_color
+      categories:
+        Gray: "#7a7a7a"
+        Cinnamon: "#c0642f"
+        Black: "#1f1f1f"
+      other: "#d4c9a8"
+    paint:
+      circle-radius: 4
+      circle-stroke-width: 1
+      circle-stroke-color: "#ffffff"
+    interactive:
+      hover:
+        cursor: pointer # a hand over the points: they can be clicked
+      click:
+        # The popup is a list of HTML elements. `str` is fixed text,
+        # `property` is a value from the clicked point.
+        popup:
+          - h3:
+              - str: "Squirrel "
+              - property: unique_squirrel_id
+          - p:
+              - str: "Fur: "
+              - property: primary_fur_color
+                else: "not recorded"
+          - p:
+              - str: "Age: "
+              - property: age
+                else: "not recorded"
+              - str: " · seen in the "
+              - property: shift
+          - p:
+              - href: "https://www.thesquirrelcensus.com/"
+                text: "About the Squirrel Census"

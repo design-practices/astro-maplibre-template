@@ -1,296 +1,318 @@
 # astro-maplibre-template
-Basic template for astro and maplibre, with inline, full page, and scrollytelling maps.
 
+A starter website for telling stories with maps: maps placed between text and
+images, a full-page map, and a scrollytelling story map. Fork it, change the
+words and the maps, push, and GitHub publishes it for you.
 
-## 💻 Commands
+This is **version 2**. It is built with [Astro](https://astro.build/),
+[Tailwind CSS](https://tailwindcss.com/) and
+[maplibre-yaml](https://docs.maplibre-yaml.org/), which turns a YAML file into
+a [MapLibre](https://maplibre.org/) map. Every map on the site is a YAML file
+you edit; you don't need to write JavaScript.
 
-All commands are run from the root of the project, from a terminal:
+> **Using the old version?** Version 1 (custom map components, `_*.yaml` files
+> in `src/pages/`) is kept at the [`v1` tag](../../tree/v1). Version 2 is not a
+> drop-in upgrade: the YAML format is different (see
+> [How v1 maps to v2](#coming-from-version-1)).
 
-Replace npm with your package manager of choice. `npm`, `pnpm`, `yarn`, `bun`, etc
+## Quick start
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run dev:network`     | Starts local dev server on local network         |
-| `npm run sync`            | Generates TypeScript types for all Astro modules.|
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run preview:network` | Preview build on local network                   |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-| `npm run lint`            | Run ESLint                                       |
-| `npm run lint:fix`        | Auto-fix ESLint issues                           |
+You need [Node.js](https://nodejs.org/) 22.23.4 or later (`node --version`
+tells you which you have) and [Git](https://git-scm.com/).
 
-## Customization
-### Website Title
-You can change the website title (which appears in the header and the footer) by editing the `consts.ts` file in the `/src` directory. Change the value of the `NAME` property in the `Site` constant to the desired title. You'll see there are entries for other kinds of metadata that you can also add to your site.
-![alt text](./docs/img/image-1.png)
+1. On GitHub, click **Use this template → Create a new repository**. The
+   repository name becomes part of your site's address.
+2. Clone your new repository and open the folder in a terminal:
 
-### Website URL
-To change your site's URL using Github pages, there are a few steps. 
-1. Open the `index.astro` file in the `/src/pages` directory. You'll see a number of links that look like this: `<a href="/astro-maplibre-template/inline_maps">/inline_maps</a>`. You'll need to change the `astro-maplibre-template` portion to match exactly what you named your site in the `consts.ts` file for each link. 
-2. Open `astro.config.mjs` in the root directory. You'll see a `base` property in the `site` object. Change the value of the `base` property to match the name of your site. It must match exactly what you named your site in the `consts.ts` file. ![alt text](./docs/img/image-4.png)
-3. Finally, go to your github repository on the web. The site's deploy steps (the `deploy.yaml` file that publishes the page) is configured to take the URL for the website based on the repository name. You'll need to change the repository name to match the name of your site. ![alt text](./docs/img/image-3.png)
+   ```bash
+   git clone https://github.com/<your-user>/<your-repo>.git
+   cd <your-repo>
+   ```
 
-With these changes, you should have a fully customized site with the title of your choice; in the above example, instead of reaching the site at `https://design-practices.github.io/astro-maplibre-template/`, you would reach it at `https://design-practices.github.io/foo-bar/`.
+3. Install and start the development server:
 
-You could separately launch the site on a custom domain using providers such as cloudflare, vercel, or netlify. Cloudflare is a great option because hosting static sites like this one is free; you only pay for the domain name. For more information on that process, read more [here](https://developers.cloudflare.com/pages/get-started/git-integration/).
+   ```bash
+   npm install
+   npm run dev
+   ```
 
+4. Open the address it prints (`http://localhost:4321/astro-maplibre-template/`
+   until you change the base, below). Edit a file, save, and the page reloads.
 
-## Inline
-Inline maps using MDX are shown in the `inline_maps.mdx` file in `/pages`. Within the `<Container />` object you can use traditional markdown as well as the MDX `Maplibre` object. You can pass styles and layers to the map. It would be good to be able to pass the option to control layer visibility and onClick behavior from the layers arg that's passed in as well, to come.
+## Commands
 
-### Inline map options
+Run these from the project folder.
 
-#### Inline map YAML options
+| Command | What it does |
+| :--- | :--- |
+| `npm install` | Installs everything the site needs (once, and after pulling changes to `package.json`) |
+| `npm run dev` | Starts the site at `localhost:4321`; the page reloads as you save |
+| `npm run dev:network` | Same, reachable from your phone on the same Wi-Fi |
+| `npm run build` | Checks the code and every map, then builds the finished site into `dist/` |
+| `npm run preview` | Serves the built `dist/` so you can check it before you push |
+| `npm run validate` | Checks only the map and story YAML files (fast) |
+| `npm run validate:watch` | Keeps checking them each time you save |
+| `npm run lint` | Checks the code for common mistakes (`npm run lint:fix` fixes what it can) |
 
-##### Mixed content
-To add a block of text, images, or other non-map elements, you can add a "content" type block. This block can contain any number of elements, including headers, paragraphs, images, etc. Each element is defined as a key-value pair, where the key is the element type and the value is an array of objects that define the element's content. For example, to add a header and two paragraphs, you would use the following syntax:
-```
-  - type: "content"
-    classList: "test-div-class"
-    id: "test-div-id"
-    content:
-      - h2: 
-        - str: "A subsection"
-          classList: "text-center-test"
-          id: "subsection-id"
-      - p: 
-        - str: "You can go into more detail here."
-      - p: 
-        - str: "To start a new paragraph you must insert a new p section as shown here. "
-```
-Note that you can add a classList and id to the content block to style it as needed, and then add rules in the `styles/global.css` file to customize how the content is displayed. For example, to change the font size of the content block, you could add the following rule to the `styles/global.css` file:
-```
-.test-div-class {
-  font-size: 1.5em;
-}
+## Make it yours
+
+### 1. Name and address
+
+GitHub Pages publishes your site at `https://<your-user>.github.io/<your-repo>/`.
+Tell the site that address in **`astro.config.mjs`**:
+
+```js
+site: "https://<your-user>.github.io",
+base: "/<your-repo>",
 ```
 
-Now, all content blocks with the class "test-div-class" will have a font size of 1.5em. You can apply the same logic to any other CSS properties you want to customize, such as color, font family, how columns or rows are handled, etc.
+`base` must match your repository name exactly. It is the only place the name
+is written: links, maps, data files and images all pick it up. (If you rename
+the repository on GitHub later, change `base` too.)
 
-Further documentation on the syntax for the content block is provided below, and in the `_inline_map_components.yaml` file. 
+Then set the site's name, description and contact details in
+**`src/consts.ts`**. `SITE.NAME` is shown in the header and footer.
 
-You can also add external content via `iframe`. To do so, create a content block with the type "iframe" and pass the URL of the content you want to embed. For example, to embed a Mapbox map, you would use the following syntax:
-```
-  - type: "content"
-    content:
-      - h2: 
-        - str: "An iframe example"
-      - iframe:
-        - src: <iframe width='100%' height='400px' src="https://api.mapbox.com/styles/v1/marioag/clzbybnep002n01p646zu2qpk.html?title=false&access_token=pk.eyJ1IjoibWFyaW9hZyIsImEiOiJjamxncWNoMDcwMDhtM3FteDZ5dDZwZHd2In0.YzWCU25slWawKWGNYbhNjQ&zoomwheel=false#2/38/-34" title="Sample Style" style="border:none;"></iframe>
-```
+### 2. Where things live
 
-The above code should produce the following output:
-![alt text](image.png)
-
-##### Map content
-To add a map, you can use the "map" type block. This will allow you to create a map with specified attributes, as well as layers and layer properties (including what happens when you click on the layer). For example, to add a map with a bike lane layer, you would use the following syntax:
-```
-   - type: "map"
-    id: "maplibremap2-test"
-    classList: "test-class"
-    content:
-      container: "maplibremap"
-      latitude: 40.8075803
-      longitude: -73.9604192
-      zoom: 12
-      interactive: true
-      mapstyle: "https://api.maptiler.com/maps/dataviz/style.json?key=WlatIY6MghFCwInJhBkl"
-      containerstyle: "width: 100%; height: 70vh"
-      layers:
-        - id: "bikes"
-        label: "Bike Lanes"
-        toggle: true
-        visible: true
-        data-type: "geojson"
-        layer-type: "line"
-        url: "https://data.cityofnewyork.us/resource/mzxg-pwib.geojson?$limit=10000"
-        paint: 
-            line-color: "#000000"
-            line-width: 3
-        mouseEvent:
-            - type: "click"
-            content:
-                - h1: 
-                - str: "Feature Info"
-                - p: 
-                - str: "This is a bike lane."
+```text
+src/
+  pages/            one file per page: the file name is the address
+    index.astro       the home page
+    inline_maps.mdx   maps between text, images and embeds
+    full_page_map.mdx one map that fills the window
+    scrollytelling.mdx a story map
+  maps/             one YAML file per map (used by the pages above)
+  stories/          one YAML file per story map
+  assets/img/       images for your pages (resized for you when the site builds)
+  components/       the header, footer and other site parts
+  layouts/          the page shell (PageLayout.astro)
+  styles/global.css colours, fonts and text styles (Tailwind)
+  consts.ts         site name and description
+public/
+  data/             data files for your maps (GeoJSON, …)
+  img/              images for story chapters
 ```
 
-##### Adding a legend
+To add a page, copy one of the `.mdx` files in `src/pages/`; `about.mdx`
+becomes `/<your-repo>/about`. Link to it with the `url()` helper so the base
+is added for you: `<a href={url("about")}>About</a>` (see `src/pages/index.astro`).
 
-There is a div with the class `map-overlay` that can be used to display a legend for the map. The legend is defined in the `legend` object in the layer options. The `legend` object should contain an array of items, each of which is an object with a `color` and `label` property. For example, to add a legend entry for a layer with a single symbology, you would use the following syntax:
-```
-legend:
-    items:
-      - color: '#cc0000'
-        label: 'Pizza Places'
-```
-You can add multiple items to the legend array to display multiple symbologies. You can optionally add a title to the legend by adding a `title` property to the `legend` object. For example:
-```
-legend:
-    title: 'Legend'
-    items:
-      - color: '#cc0000'
-        label: 'Pizza Places'
-      - color: '#00cc00'
-        label: 'Bike Lanes'
+## Maps
+
+Each map is a YAML file in `src/maps/`. A page loads it and shows it with a
+component from `@maplibre-yaml/astro`:
+
+```mdx
+import { Map, loadMapConfig } from "@maplibre-yaml/astro";
+export const squirrels = await loadMapConfig("./src/maps/squirrels.yaml");
+
+<Map config={squirrels} height="60vh" class="map-frame not-prose" />
 ```
 
-This gives you some flexibility in how you organize items in the legend.
+`loadMapConfig` checks the file while the site builds, so a mistake stops the
+build with the file, line and column instead of reaching your site. (`class`
+gives the map a border; `not-prose` keeps the page's text styles out of the
+map's popups and legend.)
 
-You can update the legend div's properties based on the class and id associated with the legend div in the `styles/global.css` file. The legend has these properties and accessors, which are based on the `FullPageMap`'s container property: `<div class="map-overlay" id={`${container}-legend`}></div>` (i.e. in the basic example the id is `maplibremap-legend`). By default, the legend will appear in the top left corner; use the css rules in `styles/global.css` for `.map-overlay` and `.legend-color` to adjust the position as needed.
+A map file has the map's starting view (`config:`) and its `layers:`:
 
-##### Map + Mixed content
-If you feel so inclined, you can add maps and other mixed content types to the same div, which allows for better control over how content is rendered (e.g. positioning maps and other content in a row together using css). You can achieve the following using the `mixed` content block type:
-
-```
-  - type: "mixed"
-    id: 'mixed-test'
-    content:
-    - type: "map"
-      content:
-        container: "maplibremapxyz"
-        latitude: 40.8075803
-        longitude: -73.9604192
-        zoom: 12
-        interactive: true
-        mapstyle: "https://api.maptiler.com/maps/dataviz/style.json?key=WlatIY6MghFCwInJhBkl"
-        containerstyle: "width: 100%; height: 70vh"
-    - type: "content"
-      content:
-        - p: 
-          - str: "This is a paragraph of text that is not related to the map."
-```
-
-As always, be mindful of indentation when editing the YAML file. The YAML parser is very sensitive to indentation, and will throw an error if the indentation is not correct.
-
-## Scrollytelling
-Uses a YAML convention to pass arguments to the map object. Steps are defined in `pages/scrollytelling_steps.yaml`, which is invoked in `payes/scrolltelling.mdx`. That's where the initial position and map style should be defined. Otherwise text, images, etc. should be defined in the yaml file. I'd like to continue to add features to the steps, including passing the hidden variable, animation control, and more layer control. This is just a matter of copying the mapbox scrollytelling logic over. 
-
-#### Scrollytelling step options
-
-| **Option**         | **Type**               | **Required** | **Description**                                                                                                    | **Example**                                                   |
-|---------------------|------------------------|--------------|--------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
-| `title`            | `string`              | Yes          | The title of the map step.                                                                                         | `"London"`                                                    |
-| `center`           | `[number, number]`    | Yes          | Geographic coordinates `[longitude, latitude]` for the map center.                                                | `[-0.1278, 51.5074]`                                          |
-| `zoom`             | `number`              | Yes          | Zoom level for the map.                                                                                            | `8`                                                           |
-| `pitch`            | `number`              | No           | The tilt angle of the map in degrees (0-60).                                                                       | `30`                                                          |
-| `bearing`          | `number`              | No           | The rotation angle of the map in degrees.                                                                          | `-10`                                                         |
-| `description`      | `string`              | No           | A descriptive text for the map step.                                                                               | `"You can change the position of the overlay div..."`         |
-| `media`            | `string` (URL)        | No           | URL of an image or media to display with the map step.                                                             | `"https://img.atlasobscura.com/OGZXBPY6..."`                  |
-| `position`         | `"left", "right", "centered", "full"` | No           | The position of the overlay div relative to the map.                                                               | `"right"`                                                     |
-| `mapAnimation`     | `"flyTo", "easeTo", "jumpTo"`   | No           | The type of animation used to transition between map steps.                                                        | `"jumpTo"`                                                    |
-| `rotateAnimation`  | `boolean`             | No           | Enables map rotation when the step is active.                                                                      | `true`                                                        |
-| `layers`           | `Array` of objects    | No           | A list of layers to add to the map.                                                                                | See layer object example below.                               |
-
-
-
-## Full page
-Full page maps are shown in the `full_page_map.mdx` file in `/pages`. This is a simple map that takes the same arguments as the inline map, but is rendered as a full page map. Layers are defined in the `_full_map_map_components.yaml` file in the `/components` directory.
-
-### Full page map options
-
-#### Adding a legend
-
-There is a div with the class `map-overlay` that can be used to display a legend for the map. The legend is defined in the `legend` object in the layer options. The `legend` object should contain an array of items, each of which is an object with a `color` and `label` property. For example, to add a legend entry for a layer with a single symbology, you would use the following syntax:
-```
-legend:
-    items:
-      - color: '#cc0000'
-        label: 'Pizza Places'
-```
-You can add multiple items to the legend array to display multiple symbologies. You can optionally add a title to the legend by adding a `title` property to the `legend` object. For example:
-```
-legend:
-    title: 'Legend'
-    items:
-      - color: '#cc0000'
-        label: 'Pizza Places'
-      - color: '#00cc00'
-        label: 'Bike Lanes'
+```yaml
+# yaml-language-server: $schema=https://docs.maplibre-yaml.org/schema/latest/map.schema.json
+type: map
+id: squirrels
+config:
+  mapStyle: "https://tiles.openfreemap.org/styles/positron" # the basemap
+  center: [-73.9654, 40.7829] # [longitude, latitude]
+  zoom: 13.5
+layers:
+  - id: squirrels
+    type: circle # circle, line, fill, symbol, raster, …
+    source:
+      type: geojson
+      url: "/data/squirrel20241021.geojson" # public/data/squirrel20241021.geojson
+    paint:
+      circle-radius: 4
+      circle-color: "#c0642f"
 ```
 
-This gives you some flexibility in how you organize items in the legend.
+The first line is a comment that gives editors autocomplete and error
+underlines (in VS Code, install the recommended **YAML** extension). To find
+`center` and `zoom` for a place, move around
+[this location helper](https://labs.mapbox.com/location-helper/) and copy the
+numbers. Note the order: **longitude first**, then latitude.
 
-You can update the legend div's properties based on the class and id associated with the legend div in the `styles/global.css` file. The legend has these properties and accessors, which are based on the `FullPageMap`'s container property: `<div class="map-overlay" id={`${container}-legend`}></div>` (i.e. in the basic example the id is `maplibre-full-map-legend`). By default, the legend will appear in the top left corner; use the css rules in `styles/global.css` for `.map-overlay` and `.legend-color` to adjust the position as needed.
+The basemaps are from [OpenFreeMap](https://openfreemap.org/) and need no API
+key: `positron`, `liberty`, `bright`, `dark` and `fiord` all work in the URL
+above. Any other MapLibre style URL works too.
 
-#### Changing layer order
-You can use the `before` option to change the layer order. This option specifies the ID of the layer to insert the current layer before. For example, to insert a layer before the "water" layer, you would use the following syntax to produce the effect below (where `roads_labels_major` is a layer defined in the `style.json` file):
+### What the example maps show
+
+| You want | Look at | Key parts |
+| :--- | :--- | :--- |
+| A popup when a point is clicked | `src/maps/squirrels.yaml` | `interactive: { click: { popup: … } }` |
+| Colours by category, with a legend | `src/maps/squirrels.yaml`, `bike-lanes.yaml` | `classify: { field, categories }` |
+| Data from a file in `public/data/` | `src/maps/bike-lanes.yaml` | `source: { type: geojson, url: "/data/….geojson" }` |
+| Data written in the YAML | `src/maps/layers.yaml` (the park outline) | `source: { type: geojson, data: … }` |
+| Checkboxes to turn layers on and off | `src/maps/layers.yaml`, `full-page.yaml` | `label:` on a layer; `visible: false` to start it off |
+| A legend entry for a plain layer | `src/maps/layers.yaml` | `legend: { label, color, shape }` |
+| A map that doesn't move | `src/maps/static.yaml` | `config: { interactive: false }` |
+| Raster tiles | `src/maps/full-page.yaml` | `type: raster`, `source: { type: raster, tiles: […] }` |
+
+A popup is a list of HTML elements; `str:` is fixed text and `property:` is a
+value from the clicked feature:
+
+```yaml
+interactive:
+  hover:
+    cursor: pointer
+  click:
+    popup:
+      - h3:
+          - property: name
+      - p:
+          - str: "Fur: "
+          - property: primary_fur_color
+            else: "not recorded"
 ```
-- id: 'test-image'
-  label: 'Image Overlay'
-  toggle: true  
-  visible: false
-  data-type: 'image'
-  layer-type: 'image'
-  url: 'https://docs.mapbox.com/mapbox-gl-js/assets/radar.gif'
-  before: 'roads_labels_major'
-  coordinates: [[-80.425, 46.437],
-                [-71.516, 46.437],
-                [-71.516, 37.936],
-                [-80.425, 37.936]]
+
+### Full-page map
+
+`src/pages/full_page_map.mdx` shows `src/maps/full-page.yaml` with
+`<FullPageMap>`, which fills the window under the header and adds zoom and
+reset buttons. Any map file works there.
+
+### Scrollytelling
+
+`src/pages/scrollytelling.mdx` shows `src/stories/nyc.yaml` with
+`<Scrollytelling>`. A story file is a map (`config:`, `layers:`) plus
+`chapters:`. Each chapter moves the camera and can show and hide layers:
+
+```yaml
+chapters:
+  - id: squirrels
+    title: Squirrels in Central Park
+    description: "<p>Chapter text is <strong>HTML</strong>, not Markdown.</p>"
+    image: "/img/fisk02.jpg"   # optional: public/img/fisk02.jpg
+    center: [-73.96778, 40.78376]
+    zoom: 14
+    pitch: 0                  # tilt, 0–85
+    bearing: 20               # rotation
+    animation: flyTo          # flyTo (default), easeTo or jumpTo
+    alignment: left           # left, right, center or full
+    layers:
+      show: [squirrels]       # layer ids; hide: [ … ] turns them off
 ```
-![alt text](image-1.png)
 
+A layer that a chapter turns on later starts hidden with
+`layout: { visibility: none }`. A chapter's changes last until another chapter
+undoes them.
 
+## Adding your own data
 
+Put the file in `public/data/` and point a layer at it with `/data/<file name>`
+(no `public/`, and the base is added for you). GeoJSON is simplest; export it
+from QGIS, [geojson.io](https://geojson.io/) or most data portals. Keep files
+small (a few MB at most); for bigger data see
+[Large data](https://docs.maplibre-yaml.org/guides/cloud-native-data/).
 
-#### Map `Props` Interface
+A `url:` can also be a web address, such as an open-data API. That data is
+fetched each time someone opens the page, so the site breaks if that service
+goes down or changes. Saving a copy in `public/data/` avoids that: the bike lanes
+in `src/maps/bike-lanes.yaml` are a snapshot of
+[NYC Open Data](https://data.cityofnewyork.us/Transportation/New-York-City-Bike-Routes/mzxg-pwib)
+saved as `public/data/manhattan-bike-lanes.geojson`.
 
-Baseline map options. Note that map layers are added via the `_full_map_map_components.yaml` file.
+## Text, images and maps together (MDX)
 
-| Property         | Type          | Required | Description                                                                                                         | Example Value                    |
-|------------------|---------------|----------|---------------------------------------------------------------------------------------------------------------------|----------------------------------|
-| `latitude`       | `number`      | Yes      | Latitude of the map center.                                                                                         | `40.7128`                        |
-| `longitude`      | `number`      | Yes      | Longitude of the map center.                                                                                        | `-74.0060`                       |
-| `zoom`           | `number`      | Yes      | Initial zoom level of the map.                                                                                      | `12`                             |
-| `mapstyle`       | `string`      | Yes      | URL or style object for MapLibre.                                                                                   | `"mapbox://styles/mapbox/streets-v11"` |
-| `container`      | `string`      | Yes      | ID of the container where the map will be rendered.                                                                 | `"map-container"`                |
-| `interactive`    | `boolean`     | No       | If `false`, the map will not respond to interaction. Defaults to `true`.                                            | `true`                           |
-| `containerstyle` | `string`      | No       | CSS style to apply to the map container.                                                                            | `"height: 100%; width: 100%;"`   |
-| `pitch`          | `number`      | No       | Initial pitch (tilt) of the map in degrees.                                                                         | `45`                             |
-| `bearing`        | `number`      | No       | Initial bearing (rotation) of the map in degrees.                                                                   | `-30`                            |
+Pages are [MDX](https://mdxjs.com/): Markdown for the text, plus components and
+HTML wherever you need them. `src/pages/inline_maps.mdx` shows each of these:
 
+- **Text**: Markdown headings, paragraphs, lists, `**bold**`, `[links](https://…)`.
+- **Maps**: `<Map config={…} />`, as above.
+- **Images**: put the file in `src/assets/img/`, import it, and show it with
+  Astro's `<Image>`, which resizes it for the web:
 
+  ```mdx
+  import { Image } from "astro:assets";
+  import fiskMap from "../assets/img/fisk02.jpg";
 
-#### Layer Options Documentation
+  <Image src={fiskMap} width={600} alt="Describe the image" />
+  ```
 
-| Property     | Type      | Required | Description                                                                                                         | Example Value                                    |
-|--------------|-----------|----------|---------------------------------------------------------------------------------------------------------------------|--------------------------------------------------|
-| `id`         | `string`  | Yes      | Unique identifier for the layer.                                                                                   | `'bikes'`, `'pizza'`                             |
-| `label`      | `string`  | No       | Label for the layer, used for display in UI elements like toggles.                                                 | `'Bike Lanes'`, `'Pizza Places'`                 |
-| `toggle`     | `boolean` | No       | Whether this layer can be toggled on or off by the user. Defaults to `true`.                                       | `true`, `false`                                  |
-| `visible`    | `boolean` | No       | Initial visibility of the layer. Defaults to `false`.                                                              | `true`, `false`                                  |
-| `data-type`  | `string`  | Yes      | Specifies the data type. For now, only `'geojson'` is supported.                                                   | `'geojson'`                                      |
-| `layer-type` | `string`  | Yes      | Defines the type of layer, which determines how the data is rendered.                                              | `'line'`, `'circle'`, `'fill'`                             |
-| `url`        | `string`  | Yes      | URL to the GeoJSON data source for this layer.                                                                     | `'https://data.cityofnewyork.us/resource/mzxg-pwib.geojson?$limit=10000'` |
-| `paint`      | `object`  | No       | MapLibre paint properties for styling the layer. Values depend on the `layer-type`.                                | `{ "line-color": "#000000", "line-width": 3 }`   |
-| `mouseEvent` | `array`   | No       | Array of events to listen for on this layer, specifying popup content on event.                                    | See detailed `mouseEvent` table below            |
-| `before`     | `string`  | No       | ID of the layer to insert this layer before.                                                                       | `'water'`                                        |
-| `legend`     | `object`  | No       | Legend properties for the layer.                                                                                   | ```legend: {items: [{color:'#fff', label:'white orb'}]} ``` |
+- **Embeds**: any HTML, such as an `<iframe>` with a video.
+- **Two columns**: a `<div>` with Tailwind's grid classes, holding a map and
+  text side by side (stacked on phones):
 
-#### `mouseEvent` Content
+  ```mdx
+  <div class="not-prose grid gap-6 md:grid-cols-2 items-center my-8">
+    <Map config={locator} height="320px" class="map-frame my-0" />
+    <div class="prose">
+      <h3>Central Park</h3>
+      <p>Text next to the map.</p>
+    </div>
+  </div>
+  ```
 
-| Property   | Type         | Required | Description                                                                                                       | Example Value                           |
-|------------|--------------|----------|-------------------------------------------------------------------------------------------------------------------|-----------------------------------------|
-| `type`     | `string`     | Yes      | Type of mouse event to listen for. Options include `"click"`, `"mousemove"`, `"mouseenter"`, `"mouseleave"`.      | `"click"`                               |
-| `content`  | `array`      | Yes      | Array of elements to display in the popup. Each item is an object containing a tag (`h1`, `p`, etc.) and content. You can pass multiple tags together to position feature attributes between text, etc. | `[ { "h1": [{ "str": "Feature Info" }] } ]` |
+Wrap a page's text in `<article>` to get the site's text styles.
 
+## Checking your work
 
-#### `content` Format
+`npm run build` checks everything before it builds: the code (`astro check`),
+then every map and story file (`mlym validate src/maps src/stories`). A mistake
+in a YAML file stops the build with its file, line and column, and often a
+suggestion:
 
-Each item in the `content` array in `mouseEvent` consists of a tag and a list of items for that tag. Items can be static strings or dynamic properties.
+```text
+✗ src/stories/nyc.yaml
+  error Chapter 2 ("squirrels"): Unknown key "centre" — did you mean "center"? ("center" is required here.)
+    at line 72, column 5
+```
 
-| Property   | Type          | Required | Description                                      | Example Value                      |
-|------------|---------------|----------|--------------------------------------------------|------------------------------------|
-| `str`      | `string`      | No       | Static text to display.                          | `"Feature Info"`                   |
-| `property` | `string`      | No       | Property key to retrieve from feature properties.| `"dba"`. Must match an attribute name in `features[0].properties`                            |
-| `else`     | `string`      | No       | Fallback text if the property value is unavailable. | `"N/A"`                        |
-| `href`     | `string`      | No       | Link URL (used only with `<a>` tags).            | `"https://example.com"`            |
-| `text`     | `string`      | No       | Text for the link (used only with `<a>` tags).   | `"More info"`                      |
-| `src`      | `string`      | No       | Source URL for an image (used only with `<img>` tags). | `"https://example.com/image.png"` |
-| `alt`      | `string`      | No       | Alt text for the image (used only with `<img>` tags). | `"Alternative text"`            |
+Run `npm run validate` (or `npx mlym validate src/maps`) to check just the
+YAML, or `npm run validate:watch` to check it every time you save. In
+`npm run dev`, a broken file shows the same message in the browser.
 
+## Publishing on GitHub Pages
+
+1. Set `site` and `base` in `astro.config.mjs` ([above](#1-name-and-address)).
+2. On GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+3. Push to `main`. The workflow in `.github/workflows/deploy.yml` builds the
+   site and publishes it; follow it in the **Actions** tab. Your site is at
+   `https://<your-user>.github.io/<your-repo>/` a minute or two later.
+
+If the build fails, open the failed run in the Actions tab: the log names the
+file and line, as it does locally. The published site stays as it was until a
+build succeeds.
+
+To check the finished site before you push, run `npm run build` and then
+`npm run preview`, and open `http://localhost:4321/<your-repo>/`.
+
+## Learn more
+
+- [maplibre-yaml documentation](https://docs.maplibre-yaml.org/)
+  - [Astro components](https://docs.maplibre-yaml.org/integrations/astro/) (`Map`, `FullPageMap`, loading YAML)
+  - [Story maps in Astro](https://docs.maplibre-yaml.org/integrations/astro-stories/) and [writing a story file](https://docs.maplibre-yaml.org/schema/scrollytelling/)
+  - [Layers and styling](https://docs.maplibre-yaml.org/guides/layers/), [popups](https://docs.maplibre-yaml.org/guides/popups/), [legends and thematic maps](https://docs.maplibre-yaml.org/guides/thematic-maps/), [data sources](https://docs.maplibre-yaml.org/guides/data-sources/)
+  - [Every layer key](https://docs.maplibre-yaml.org/reference/yaml/layers/), [the validate command](https://docs.maplibre-yaml.org/cli/reference/#validate)
+  - [Publishing and subpaths](https://docs.maplibre-yaml.org/guides/publishing/), [Troubleshooting](https://docs.maplibre-yaml.org/troubleshooting/)
+  - [Example gallery](https://docs.maplibre-yaml.org/examples/gallery/): dozens of maps to copy from
+- [MapLibre style properties](https://maplibre.org/maplibre-style-spec/layers/): every `paint` and `layout` key
+- [Astro docs](https://docs.astro.build/) and [Tailwind CSS docs](https://tailwindcss.com/docs)
+
+## Coming from version 1
+
+| Version 1 | Version 2 |
+| :--- | :--- |
+| `<MapLibre>` / `<Map>` with props in the page | `<Map config={…}>` with the map in `src/maps/*.yaml` |
+| `_inline_map_components.yaml` with `content` / `mixed` blocks | MDX: write text, images and maps directly in `src/pages/*.mdx` |
+| `_full_page_map_components.yaml` | `src/maps/full-page.yaml` + `<FullPageMap>` |
+| `_scrollytelling_steps.yaml` | `src/stories/nyc.yaml` + `<Scrollytelling>` |
+| `data-type` / `layer-type` / `url` on a layer | `type:` on the layer, `source: { type, url }` |
+| `mouseEvent: [{ type: click, content: … }]` | `interactive: { click: { popup: … } }` (same `str` / `property` / `else` items) |
+| `toggle: true` | `label:` on the layer |
+| `visible: false` | `visible: false` (map) or `layout: { visibility: none }` (story) |
+| `persist: false` on a step's layer | `layers: { show: […], hide: […] }` on chapters |
+| `media:` / `position:` on a step | `image:` / `alignment:` on a chapter |
+| Links written with `/astro-maplibre-template/…` and `update-paths.js` | `base` in `astro.config.mjs`, `url()` for links |
+| MapTiler / Mapillary / Protomaps API keys | Keyless OpenFreeMap basemaps |

@@ -1,4 +1,6 @@
 ---
+// The shell every page uses: <head>, the site header and footer.
+// MDX pages wrap their content in <PageLayout title="…" description="…">.
 import Head from "@components/Head.astro";
 import Header from "@components/Header.astro";
 import Footer from "@components/Footer.astro";
@@ -7,22 +9,23 @@ import { SITE } from "@consts";
 type Props = {
   title: string;
   description: string;
+  /** For pages that are one big map or story: no page padding, no footer. */
+  bleed?: boolean;
 };
 
-const { title, description } = Astro.props;
+const { title, description, bleed = false } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
     <Head title={`${title} | ${SITE.NAME}`} description={description} />
-    <script data-astro-rerun src="https://unpkg.com/maplibre-gl@^4.7.1/dist/maplibre-gl.js"></script>
   </head>
-  <body>
+  <body class:list={{ bleed }}>
     <Header />
     <main>
       <slot />
     </main>
-    <Footer />
+    {!bleed && <Footer />}
   </body>
 </html>
